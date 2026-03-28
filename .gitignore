@@ -1,0 +1,38 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# IDE — Android Studio / IntelliJ
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+.claude/
+
+# Local config (SDK path, BASE_URL)
+local.properties
+
+# Android build artifacts
+*.apk
+*.aab
+*.ap_
+*.dex
+/captures
+
+# NDK
+.externalNativeBuild/
+.cxx/
+
+# Keystore
+*.jks
+*.keystore
+
+# Logs
+*.log
+
+# Kotlin
+*.kotlin_module
