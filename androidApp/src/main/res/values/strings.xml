@@ -1,3 +1,19 @@
 <resources>
-    <string name="app_name">UmTracker</string>
+    <string name="app_name">Умная система мониторинга задач</string>
+    <string name="registration_title">Регистрация</string>
+    <string name="first_name_label">Имя</string>
+    <string name="last_name_label">Фамилия</string>
+    <string name="email_label">Email</string>
+    <string name="password_label">Пароль</string>
+    <string name="role_label">Роль</string>
+    <string name="subject_label">Предмет</string>
+    <string name="department_label">Направление</string>
+    <string name="register_button_text">Зарегистрироваться</string>
+    <string name="login_link_text">Войти</string>
+    <string name="account_exists_text">Уже есть учётная запись?</string>
+    <string name="loading_data_text">Загрузка данных...</string>
+    <string name="retry_load_text">Повторить загрузку</string>
+    <string name="hide_password_text">Скрыть</string>
+    <string name="show_password_text">Показать</string>
+    <string name="no_data_text">Нет данных</string>
 </resources>

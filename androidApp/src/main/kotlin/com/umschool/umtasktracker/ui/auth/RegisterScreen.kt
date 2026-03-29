@@ -13,6 +13,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,13 +23,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -74,16 +75,16 @@ fun RegisterScreenContent(
     onRetryLoadCatalogs: () -> Unit = {},
     onNavigateToLogin: () -> Unit = {}
 ) {
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
+    var firstName by rememberSaveable { mutableStateOf("") }
+    var lastName by rememberSaveable { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
     // Выбранные значения в dropdown'ах
-    var selectedRole by remember { mutableStateOf<CatalogItem?>(null) }
-    var selectedSubject by remember { mutableStateOf<CatalogItem?>(null) }
-    var selectedDepartment by remember { mutableStateOf<CatalogItem?>(null) }
+    var selectedRole by rememberSaveable { mutableStateOf<CatalogItem?>(null) }
+    var selectedSubject by rememberSaveable { mutableStateOf<CatalogItem?>(null) }
+    var selectedDepartment by rememberSaveable { mutableStateOf<CatalogItem?>(null) }
 
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
@@ -115,7 +116,7 @@ fun RegisterScreenContent(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "Умная система мониторинга задач",
+                text = stringResource(R.string.app_name),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = Black,
@@ -167,7 +168,7 @@ fun RegisterScreenContent(
             ) {
                 // Заголовок
                 Text(
-                    text = "Регистрация",
+                    text = stringResource(R.string.registration_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Normal,
                     color = TextDark,
@@ -188,7 +189,7 @@ fun RegisterScreenContent(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     TextButton(onClick = onRetryLoadCatalogs) {
-                        Text("Повторить загрузку", color = GradientTop)
+                        Text(stringResource(R.string.retry_load_text), color = GradientTop)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -202,51 +203,94 @@ fun RegisterScreenContent(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "Загрузка данных...",
+                        text = stringResource(R.string.loading_data_text),
                         color = TextHint,
                         fontSize = 14.sp
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                 }
 
-                // Имя
-                TextField(
-                    value = firstName,
-                    onValueChange = { firstName = it },
-                    label = {
-                        Text(text = "Имя", fontSize = 16.sp, color = TextDark)
-                    },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onNext = { focusManager.moveFocus(FocusDirection.Down) }
-                    ),
-                    colors = registerFieldColors(),
-                    textStyle = LocalTextStyle.current.copy(fontSize = 16.sp, color = TextDark),
-                    modifier = Modifier.fillMaxWidth()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Имя
+                    TextField(
+                        value = firstName,
+                        onValueChange = { firstName = it },
+                        label = {
+                            Text(text = stringResource(R.string.first_name_label), fontSize = 16.sp, color = TextDark)
+                        },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                        ),
+                        colors = registerFieldColors(),
+                        textStyle = LocalTextStyle.current.copy(fontSize = 16.sp, color = TextDark),
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(end = 6.dp)
+                    )
+
+                    // Фамилия
+                    TextField(
+                        value = lastName,
+                        onValueChange = { lastName = it },
+                        label = {
+                            Text(text = stringResource(R.string.last_name_label), fontSize = 16.sp, color = TextDark)
+                        },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                        ),
+                        colors = registerFieldColors(),
+                        textStyle = LocalTextStyle.current.copy(fontSize = 16.sp, color = TextDark),
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(start = 6.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Dropdown: Роль
+                CatalogDropdown(
+                    label = stringResource(R.string.role_label),
+                    items = uiState.roles,
+                    selectedItem = selectedRole,
+                    onItemSelected = { selectedRole = it },
+                    enabled = !uiState.isCatalogsLoading
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Фамилия
-                TextField(
-                    value = lastName,
-                    onValueChange = { lastName = it },
-                    label = {
-                        Text(text = "Фамилия", fontSize = 16.sp, color = TextDark)
-                    },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onNext = { focusManager.moveFocus(FocusDirection.Down) }
-                    ),
-                    colors = registerFieldColors(),
-                    textStyle = LocalTextStyle.current.copy(fontSize = 16.sp, color = TextDark),
-                    modifier = Modifier.fillMaxWidth()
+                // Dropdown: Предмет
+                CatalogDropdown(
+                    label = stringResource(R.string.subject_label),
+                    items = uiState.subjects,
+                    selectedItem = selectedSubject,
+                    onItemSelected = { selectedSubject = it },
+                    enabled = !uiState.isCatalogsLoading
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Dropdown: Направление
+                CatalogDropdown(
+                    label = stringResource(R.string.department_label),
+                    items = uiState.departments,
+                    selectedItem = selectedDepartment,
+                    onItemSelected = { selectedDepartment = it },
+                    enabled = !uiState.isCatalogsLoading
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -256,7 +300,7 @@ fun RegisterScreenContent(
                     value = email,
                     onValueChange = { email = it },
                     label = {
-                        Text(text = "Email", fontSize = 16.sp, color = TextDark)
+                        Text(text = stringResource(R.string.email_label), fontSize = 16.sp, color = TextDark)
                     },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
@@ -278,7 +322,7 @@ fun RegisterScreenContent(
                     value = password,
                     onValueChange = { password = it },
                     label = {
-                        Text(text = "Пароль", fontSize = 16.sp, color = TextDark)
+                        Text(text = stringResource(R.string.password_label), fontSize = 16.sp, color = TextDark)
                     },
                     singleLine = true,
                     visualTransformation = if (passwordVisible)
@@ -287,7 +331,7 @@ fun RegisterScreenContent(
                         PasswordVisualTransformation(),
                     trailingIcon = {
                         Text(
-                            text = if (passwordVisible) "Скрыть" else "Показать",
+                            text = if (passwordVisible) stringResource(R.string.hide_password_text) else stringResource(R.string.show_password_text),
                             color = GradientTop,
                             fontSize = 12.sp,
                             modifier = Modifier.clickable(
@@ -309,37 +353,6 @@ fun RegisterScreenContent(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
-
-                // Dropdown: Роль
-                CatalogDropdown(
-                    label = "Роль",
-                    items = uiState.roles,
-                    selectedItem = selectedRole,
-                    onItemSelected = { selectedRole = it },
-                    enabled = !uiState.isCatalogsLoading
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Dropdown: Предмет
-                CatalogDropdown(
-                    label = "Предмет",
-                    items = uiState.subjects,
-                    selectedItem = selectedSubject,
-                    onItemSelected = { selectedSubject = it },
-                    enabled = !uiState.isCatalogsLoading
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Dropdown: Направление
-                CatalogDropdown(
-                    label = "Направление",
-                    items = uiState.departments,
-                    selectedItem = selectedDepartment,
-                    onItemSelected = { selectedDepartment = it },
-                    enabled = !uiState.isCatalogsLoading
-                )
 
                 // Ошибка отправки
                 val submitError = uiState.submitError
@@ -397,7 +410,7 @@ fun RegisterScreenContent(
                         )
                     } else {
                         Text(
-                            text = "Зарегистрироваться",
+                            text = stringResource(R.string.register_button_text),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -413,13 +426,13 @@ fun RegisterScreenContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Уже есть учётная запись?",
+                        text = stringResource(R.string.account_exists_text),
                         color = TextHint,
                         fontSize = 12.sp
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Войти",
+                        text = stringResource(R.string.login_link_text),
                         color = LinkCyan,
                         fontSize = 12.sp,
                         modifier = Modifier.clickable(
@@ -491,7 +504,7 @@ private fun CatalogDropdown(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            text = "Нет данных",
+                            text = stringResource(R.string.no_data_text),
                             fontSize = 14.sp,
                             color = TextHint
                         )
@@ -513,29 +526,3 @@ private fun registerFieldColors() = TextFieldDefaults.colors(
     focusedLabelColor = TextDark,
     unfocusedLabelColor = TextDark
 )
-
-@Preview(showBackground = true, showSystemUi = true, name = "Register - Idle")
-@Composable
-private fun RegisterScreenPreviewIdle() {
-    UmTaskTrackerTheme {
-        RegisterScreenContent(
-            uiState = RegisterUiState(
-                isCatalogsLoading = false,
-                roles = listOf(
-                    CatalogItem(1, "Куратор"),
-                    CatalogItem(2, "Менеджер"),
-                    CatalogItem(3, "Наставник")
-                ),
-                subjects = listOf(
-                    CatalogItem(1, "Математика"),
-                    CatalogItem(2, "Физика"),
-                    CatalogItem(3, "Русский язык")
-                ),
-                departments = listOf(
-                    CatalogItem(1, "Основной"),
-                    CatalogItem(2, "Дополнительный")
-                )
-            )
-        )
-    }
-}
