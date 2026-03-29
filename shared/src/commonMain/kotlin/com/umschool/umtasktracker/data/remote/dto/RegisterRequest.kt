@@ -3,8 +3,6 @@ package com.umschool.umtasktracker.data.remote.dto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-// POST /api/register/ — запрос на регистрацию
-// Поля соответствуют бэкенду: name (объединённое), role_id, subject_id, department_id
 @Serializable
 data class RegisterRequest(
     val email: String,

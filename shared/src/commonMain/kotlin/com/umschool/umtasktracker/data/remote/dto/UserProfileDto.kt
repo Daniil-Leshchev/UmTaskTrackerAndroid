@@ -2,8 +2,6 @@ package com.umschool.umtasktracker.data.remote.dto
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-
-// Соответствует реальному ответу GET /api/users/me/
 @Serializable
 data class UserProfileDto(
     val email: String,

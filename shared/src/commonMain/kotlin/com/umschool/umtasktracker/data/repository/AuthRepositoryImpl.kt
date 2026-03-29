@@ -16,7 +16,6 @@ class AuthRepositoryImpl(
     override suspend fun login(email: String, password: String): Result<AuthToken> =
         runCatching {
             val response = apiService.login(LoginRequest(email, password))
-            // Сохраняем токены в локальное хранилище
             tokenStorage.saveTokens(response.access, response.refresh)
             AuthToken(access = response.access, refresh = response.refresh)
         }.recoverCatching { throwable ->
@@ -31,7 +30,6 @@ class AuthRepositoryImpl(
     override suspend fun getProfile(accessToken: String): Result<UserProfile> =
         runCatching {
             val dto = apiService.getProfile(accessToken)
-            // Маппинг DTO → Domain Model
             UserProfile(
                 email = dto.email,
                 name = "${dto.firstName} ${dto.lastName}".trim(),

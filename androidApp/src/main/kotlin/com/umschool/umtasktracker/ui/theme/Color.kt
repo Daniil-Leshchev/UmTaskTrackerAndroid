@@ -7,7 +7,6 @@ val White = Color(0xFFFFFFFF)
 val Black = Color(0xFF000000)
 val ErrorRed = Color(0xFFD32F2F)
 
-// Цвета экрана авторизации (из Figma)
 val GradientTop = Color(0xFFFF9B50)
 val GradientMiddle = Color(0xFFF8AD7B)
 val GradientBottom = Color(0xFFF1BFA5)

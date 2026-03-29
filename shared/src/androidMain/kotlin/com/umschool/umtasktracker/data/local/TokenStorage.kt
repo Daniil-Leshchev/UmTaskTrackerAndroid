@@ -8,8 +8,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-
-// DataStore для хранения JWT-токенов
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_tokens")
 
 actual class TokenStorage(private val context: Context) {

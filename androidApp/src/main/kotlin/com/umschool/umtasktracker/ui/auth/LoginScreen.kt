@@ -17,12 +17,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -30,7 +28,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.umschool.umtasktracker.R
 import com.umschool.umtasktracker.domain.model.UserRole
@@ -84,7 +81,6 @@ fun LoginScreenContent(
             )
             .systemBarsPadding()
     ) {
-        // === Верхняя часть: логотип + подпись ===
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -102,23 +98,18 @@ fun LoginScreenContent(
 
             Text(
                 text = stringResource(R.string.app_name),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleSmall,
                 color = Black,
                 textAlign = TextAlign.Center
             )
         }
 
-        // === «Голова» медведя: уши + карточка ===
-        // Абсолютное позиционирование по Figma: уши top=201, голова top=248
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .padding(top = 180.dp) // начало зоны ушей
+                .padding(top = 180.dp)
         ) {
-            // Уши — два круга ЗА карточкой
-            // Левое ухо
             Box(
                 modifier = Modifier
                     .size(104.dp)
@@ -128,7 +119,6 @@ fun LoginScreenContent(
                     .clip(CircleShape)
                     .background(CardBackground)
             )
-            // Правое ухо
             Box(
                 modifier = Modifier
                     .size(104.dp)
@@ -139,11 +129,10 @@ fun LoginScreenContent(
                     .background(CardBackground)
             )
 
-            // Карточка-голова — перекрывает нижнюю часть ушей
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 48.dp) // отступ от верха ушей до начала карточки
+                    .padding(top = 48.dp)
                     .zIndex(1f)
                     .clip(RoundedCornerShape(topStart = 48.dp, topEnd = 48.dp))
                     .background(CardBackground)
@@ -151,23 +140,24 @@ fun LoginScreenContent(
                     .padding(top = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Заголовок
                 Text(
                     text = stringResource(R.string.autorisation_title),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Normal,
+                    style = MaterialTheme.typography.titleMedium,
                     color = TextDark,
                     textAlign = TextAlign.Center
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Email
                 TextField(
                     value = email,
                     onValueChange = { email = it },
                     label = {
-                        Text(text = stringResource(R.string.email_label), fontSize = 16.sp, color = TextDark)
+                        Text(
+                            text = stringResource(R.string.email_label),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = TextDark
+                        )
                     },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
@@ -177,19 +167,22 @@ fun LoginScreenContent(
                     keyboardActions = KeyboardActions(
                         onNext = { focusManager.moveFocus(FocusDirection.Down) }
                     ),
-                    colors = loginFieldColors(),
-                    textStyle = LocalTextStyle.current.copy(fontSize = 16.sp, color = TextDark),
+                    colors = authFieldColors(),
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = TextDark),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Пароль
                 TextField(
                     value = password,
                     onValueChange = { password = it },
                     label = {
-                        Text(text = stringResource(R.string.password_label), fontSize = 16.sp, color = TextDark)
+                        Text(
+                            text = stringResource(R.string.password_label),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = TextDark
+                        )
                     },
                     singleLine = true,
                     visualTransformation = if (passwordVisible)
@@ -199,8 +192,8 @@ fun LoginScreenContent(
                     trailingIcon = {
                         Text(
                             text = if (passwordVisible) stringResource(R.string.hide_password_text) else stringResource(R.string.show_password_text),
+                            style = MaterialTheme.typography.labelSmall,
                             color = GradientTop,
-                            fontSize = 12.sp,
                             modifier = Modifier.clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null
@@ -219,18 +212,17 @@ fun LoginScreenContent(
                             }
                         }
                     ),
-                    colors = loginFieldColors(),
-                    textStyle = LocalTextStyle.current.copy(fontSize = 16.sp, color = TextDark),
+                    colors = authFieldColors(),
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = TextDark),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Ошибка
                 if (errorMessage != null) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = errorMessage,
+                        style = MaterialTheme.typography.bodySmall,
                         color = ErrorRed,
-                        fontSize = 13.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -238,7 +230,6 @@ fun LoginScreenContent(
 
                 Spacer(modifier = Modifier.height(28.dp))
 
-                // Кнопка «Войти»
                 Button(
                     onClick = { onLogin(email.trim(), password) },
                     enabled = !isLoading && email.isNotBlank() && password.isNotBlank(),
@@ -259,14 +250,15 @@ fun LoginScreenContent(
                             strokeWidth = 2.dp
                         )
                     } else {
-                        Text(text = stringResource(R.string.login_link_text), fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                        Text(
+                            text = stringResource(R.string.login_link_text),
+                            style = MaterialTheme.typography.labelLarge
+                        )
                     }
                 }
 
-                // Распорка — двигает ссылку регистрации вниз головы
                 Spacer(modifier = Modifier.weight(1f))
 
-                // Ссылка регистрации — внутри головы, внизу
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -276,14 +268,14 @@ fun LoginScreenContent(
                 ) {
                     Text(
                         text = stringResource(R.string.account_not_exists_text),
-                        color = TextHint,
-                        fontSize = 12.sp
+                        style = MaterialTheme.typography.labelSmall,
+                        color = TextHint
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = stringResource(R.string.register_button_text),
+                        style = MaterialTheme.typography.labelSmall,
                         color = LinkCyan,
-                        fontSize = 12.sp,
                         modifier = Modifier.clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
@@ -296,17 +288,6 @@ fun LoginScreenContent(
         }
     }
 }
-
-@Composable
-private fun loginFieldColors() = TextFieldDefaults.colors(
-    focusedContainerColor = Color.Transparent,
-    unfocusedContainerColor = Color.Transparent,
-    focusedIndicatorColor = GradientTop,
-    unfocusedIndicatorColor = GradientTop.copy(alpha = 0.5f),
-    cursorColor = GradientTop,
-    focusedLabelColor = TextDark,
-    unfocusedLabelColor = TextDark
-)
 
 @Preview(showBackground = true, showSystemUi = true, name = "Idle")
 @Composable

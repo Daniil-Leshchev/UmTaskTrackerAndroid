@@ -17,7 +17,6 @@ class AuthApiService(
     private val httpClient: HttpClient,
     private val baseUrl: String
 ) {
-    // POST /api/login/ — получение JWT-токенов
     suspend fun login(request: LoginRequest): TokenResponse {
         val response = httpClient.post("$baseUrl/api/login/") {
             contentType(ContentType.Application.Json)
@@ -27,7 +26,6 @@ class AuthApiService(
         return response.body()
     }
 
-    // GET /api/users/me/ — профиль текущего пользователя
     suspend fun getProfile(accessToken: String): UserProfileDto {
         val response = httpClient.get("$baseUrl/api/users/me/") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
@@ -36,14 +34,12 @@ class AuthApiService(
         return response.body()
     }
 
-    // POST /api/register/ — регистрация нового пользователя
     suspend fun register(request: RegisterRequest) {
         val response = httpClient.post("$baseUrl/api/register/") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }
         if (!response.status.isSuccess()) {
-            // Пытаемся получить текст ошибки из тела ответа
             val body = try { response.bodyAsText() } catch (_: Exception) { "" }
             when {
                 response.status == HttpStatusCode.Conflict ||
@@ -56,28 +52,24 @@ class AuthApiService(
         }
     }
 
-    // GET /api/catalogs/roles/ → [{"id_role": 1, "role": "Стандарт"}, ...]
     suspend fun getRoles(): List<RoleDto> {
         val response = httpClient.get("$baseUrl/api/catalogs/roles/")
         handleErrors(response.status)
         return response.body()
     }
 
-    // GET /api/catalogs/subjects/ → [{"id_subject": 1, "subject": "Информатика"}, ...]
     suspend fun getSubjects(): List<SubjectDto> {
         val response = httpClient.get("$baseUrl/api/catalogs/subjects/")
         handleErrors(response.status)
         return response.body()
     }
 
-    // GET /api/catalogs/departments/ → [{"id_department": 1, "department": "ЕГЭ"}, ...]
     suspend fun getDepartments(): List<DepartmentDto> {
         val response = httpClient.get("$baseUrl/api/catalogs/departments/")
         handleErrors(response.status)
         return response.body()
     }
 
-    // Обработка HTTP-ошибок — бросаем типизированные исключения
     private fun handleErrors(status: HttpStatusCode) {
         when {
             status.isSuccess() -> return

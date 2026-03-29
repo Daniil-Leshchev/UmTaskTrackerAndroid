@@ -69,7 +69,6 @@ class RegisterViewModel(
                 subjectId = subjectId,
                 departmentId = departmentId
             ).onSuccess {
-                // Регистрация успешна → автоматический вход
                 autoLogin(email, password)
             }.onFailure { error ->
                 _uiState.update {
@@ -90,8 +89,6 @@ class RegisterViewModel(
                 }
             }
             .onFailure { error ->
-                // Регистрация прошла, но автовход не удался — всё равно считаем успехом,
-                // просто переходим на экран логина
                 _uiState.update {
                     it.copy(
                         isSubmitting = false,

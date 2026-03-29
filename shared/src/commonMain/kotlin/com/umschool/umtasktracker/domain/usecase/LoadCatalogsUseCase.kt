@@ -3,7 +3,6 @@ package com.umschool.umtasktracker.domain.usecase
 import com.umschool.umtasktracker.domain.model.CatalogItem
 import com.umschool.umtasktracker.domain.repository.CatalogRepository
 
-// Загружает все каталоги параллельно (роли, предметы, отделы)
 data class Catalogs(
     val roles: List<CatalogItem>,
     val subjects: List<CatalogItem>,
@@ -17,7 +16,6 @@ class LoadCatalogsUseCase(private val repository: CatalogRepository) {
         val subjectsResult = repository.getSubjects()
         val departmentsResult = repository.getDepartments()
 
-        // Если хотя бы один каталог не загрузился — ошибка
         val roles = rolesResult.getOrElse { return Result.failure(it) }
         val subjects = subjectsResult.getOrElse { return Result.failure(it) }
         val departments = departmentsResult.getOrElse { return Result.failure(it) }

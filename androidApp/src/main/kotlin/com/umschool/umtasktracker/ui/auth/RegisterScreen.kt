@@ -24,14 +24,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.umschool.umtasktracker.R
 import com.umschool.umtasktracker.domain.model.CatalogItem
@@ -50,7 +49,6 @@ fun RegisterScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // Автовход после регистрации — переход на главный экран
     LaunchedEffect(uiState.loginSuccess) {
         val role = uiState.loginSuccess
         if (role != null) {
@@ -81,7 +79,6 @@ fun RegisterScreenContent(
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
-    // Выбранные значения в dropdown'ах
     var selectedRole by rememberSaveable { mutableStateOf<CatalogItem?>(null) }
     var selectedSubject by rememberSaveable { mutableStateOf<CatalogItem?>(null) }
     var selectedDepartment by rememberSaveable { mutableStateOf<CatalogItem?>(null) }
@@ -99,7 +96,6 @@ fun RegisterScreenContent(
             )
             .systemBarsPadding()
     ) {
-        // === Верхняя часть: логотип + подпись ===
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -117,21 +113,18 @@ fun RegisterScreenContent(
 
             Text(
                 text = stringResource(R.string.app_name),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleSmall,
                 color = Black,
                 textAlign = TextAlign.Center
             )
         }
 
-        // === «Голова» медведя: уши + карточка ===
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
                 .padding(top = 180.dp)
         ) {
-            // Левое ухо
             Box(
                 modifier = Modifier
                     .size(104.dp)
@@ -141,7 +134,6 @@ fun RegisterScreenContent(
                     .clip(CircleShape)
                     .background(CardBackground)
             )
-            // Правое ухо
             Box(
                 modifier = Modifier
                     .size(104.dp)
@@ -152,7 +144,6 @@ fun RegisterScreenContent(
                     .background(CardBackground)
             )
 
-            // Карточка-голова
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -166,35 +157,35 @@ fun RegisterScreenContent(
                     .padding(top = 24.dp, bottom = 20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Заголовок
                 Text(
                     text = stringResource(R.string.registration_title),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Normal,
+                    style = MaterialTheme.typography.titleMedium,
                     color = TextDark,
                     textAlign = TextAlign.Center
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Показываем ошибку загрузки каталогов
                 val catalogsError = uiState.catalogsError
                 if (catalogsError != null) {
                     Text(
                         text = catalogsError,
+                        style = MaterialTheme.typography.bodySmall,
                         color = ErrorRed,
-                        fontSize = 13.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     TextButton(onClick = onRetryLoadCatalogs) {
-                        Text(stringResource(R.string.retry_load_text), color = GradientTop)
+                        Text(
+                            stringResource(R.string.retry_load_text),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = GradientTop
+                        )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
 
-                // Индикатор загрузки каталогов
                 if (uiState.isCatalogsLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(32.dp),
@@ -204,8 +195,8 @@ fun RegisterScreenContent(
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         text = stringResource(R.string.loading_data_text),
-                        color = TextHint,
-                        fontSize = 14.sp
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextHint
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                 }
@@ -215,44 +206,46 @@ fun RegisterScreenContent(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Имя
                     TextField(
                         value = firstName,
                         onValueChange = { firstName = it },
                         label = {
-                            Text(text = stringResource(R.string.first_name_label), fontSize = 16.sp, color = TextDark)
+                            Text(
+                                text = stringResource(R.string.first_name_label),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = TextDark
+                            )
                         },
                         singleLine = true,
-                        keyboardOptions = KeyboardOptions(
-                            imeAction = ImeAction.Next
-                        ),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                         keyboardActions = KeyboardActions(
                             onNext = { focusManager.moveFocus(FocusDirection.Down) }
                         ),
-                        colors = registerFieldColors(),
-                        textStyle = LocalTextStyle.current.copy(fontSize = 16.sp, color = TextDark),
+                        colors = authFieldColors(),
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(color = TextDark),
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth()
                             .padding(end = 6.dp)
                     )
 
-                    // Фамилия
                     TextField(
                         value = lastName,
                         onValueChange = { lastName = it },
                         label = {
-                            Text(text = stringResource(R.string.last_name_label), fontSize = 16.sp, color = TextDark)
+                            Text(
+                                text = stringResource(R.string.last_name_label),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = TextDark
+                            )
                         },
                         singleLine = true,
-                        keyboardOptions = KeyboardOptions(
-                            imeAction = ImeAction.Next
-                        ),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                         keyboardActions = KeyboardActions(
                             onNext = { focusManager.moveFocus(FocusDirection.Down) }
                         ),
-                        colors = registerFieldColors(),
-                        textStyle = LocalTextStyle.current.copy(fontSize = 16.sp, color = TextDark),
+                        colors = authFieldColors(),
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(color = TextDark),
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth()
@@ -262,7 +255,6 @@ fun RegisterScreenContent(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Dropdown: Роль
                 CatalogDropdown(
                     label = stringResource(R.string.role_label),
                     items = uiState.roles,
@@ -273,7 +265,6 @@ fun RegisterScreenContent(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Dropdown: Предмет
                 CatalogDropdown(
                     label = stringResource(R.string.subject_label),
                     items = uiState.subjects,
@@ -284,7 +275,6 @@ fun RegisterScreenContent(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Dropdown: Направление
                 CatalogDropdown(
                     label = stringResource(R.string.department_label),
                     items = uiState.departments,
@@ -295,12 +285,15 @@ fun RegisterScreenContent(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Email
                 TextField(
                     value = email,
                     onValueChange = { email = it },
                     label = {
-                        Text(text = stringResource(R.string.email_label), fontSize = 16.sp, color = TextDark)
+                        Text(
+                            text = stringResource(R.string.email_label),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = TextDark
+                        )
                     },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
@@ -310,19 +303,22 @@ fun RegisterScreenContent(
                     keyboardActions = KeyboardActions(
                         onNext = { focusManager.moveFocus(FocusDirection.Down) }
                     ),
-                    colors = registerFieldColors(),
-                    textStyle = LocalTextStyle.current.copy(fontSize = 16.sp, color = TextDark),
+                    colors = authFieldColors(),
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = TextDark),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Пароль
                 TextField(
                     value = password,
                     onValueChange = { password = it },
                     label = {
-                        Text(text = stringResource(R.string.password_label), fontSize = 16.sp, color = TextDark)
+                        Text(
+                            text = stringResource(R.string.password_label),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = TextDark
+                        )
                     },
                     singleLine = true,
                     visualTransformation = if (passwordVisible)
@@ -332,8 +328,8 @@ fun RegisterScreenContent(
                     trailingIcon = {
                         Text(
                             text = if (passwordVisible) stringResource(R.string.hide_password_text) else stringResource(R.string.show_password_text),
+                            style = MaterialTheme.typography.labelSmall,
                             color = GradientTop,
-                            fontSize = 12.sp,
                             modifier = Modifier.clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null
@@ -347,21 +343,20 @@ fun RegisterScreenContent(
                     keyboardActions = KeyboardActions(
                         onDone = { focusManager.clearFocus() }
                     ),
-                    colors = registerFieldColors(),
-                    textStyle = LocalTextStyle.current.copy(fontSize = 16.sp, color = TextDark),
+                    colors = authFieldColors(),
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = TextDark),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Ошибка отправки
                 val submitError = uiState.submitError
                 if (submitError != null) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = submitError,
+                        style = MaterialTheme.typography.bodySmall,
                         color = ErrorRed,
-                        fontSize = 13.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -369,7 +364,6 @@ fun RegisterScreenContent(
 
                 Spacer(modifier = Modifier.height(28.dp))
 
-                // Кнопка «Зарегистрироваться»
                 val canSubmit = !uiState.isSubmitting &&
                     firstName.isNotBlank() &&
                     lastName.isNotBlank() &&
@@ -411,15 +405,13 @@ fun RegisterScreenContent(
                     } else {
                         Text(
                             text = stringResource(R.string.register_button_text),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium
+                            style = MaterialTheme.typography.labelLarge
                         )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Ссылка «Уже есть аккаунт? Войти»
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
@@ -427,14 +419,14 @@ fun RegisterScreenContent(
                 ) {
                     Text(
                         text = stringResource(R.string.account_exists_text),
-                        color = TextHint,
-                        fontSize = 12.sp
+                        style = MaterialTheme.typography.labelSmall,
+                        color = TextHint
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = stringResource(R.string.login_link_text),
+                        style = MaterialTheme.typography.labelSmall,
                         color = LinkCyan,
-                        fontSize = 12.sp,
                         modifier = Modifier.clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
@@ -448,7 +440,6 @@ fun RegisterScreenContent(
     }
 }
 
-// === Компонент выпадающего списка для каталогов ===
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CatalogDropdown(
@@ -469,13 +460,17 @@ private fun CatalogDropdown(
             onValueChange = {},
             readOnly = true,
             label = {
-                Text(text = label, fontSize = 16.sp, color = TextDark)
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = TextDark
+                )
             },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
-            colors = registerFieldColors(),
-            textStyle = LocalTextStyle.current.copy(fontSize = 16.sp, color = TextDark),
+            colors = authFieldColors(),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(color = TextDark),
             modifier = Modifier
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable)
@@ -490,7 +485,7 @@ private fun CatalogDropdown(
                     text = {
                         Text(
                             text = item.name,
-                            fontSize = 14.sp,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = TextDark
                         )
                     },
@@ -505,7 +500,7 @@ private fun CatalogDropdown(
                     text = {
                         Text(
                             text = stringResource(R.string.no_data_text),
-                            fontSize = 14.sp,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = TextHint
                         )
                     },
@@ -517,7 +512,7 @@ private fun CatalogDropdown(
 }
 
 @Composable
-private fun registerFieldColors() = TextFieldDefaults.colors(
+fun authFieldColors() = TextFieldDefaults.colors(
     focusedContainerColor = Color.Transparent,
     unfocusedContainerColor = Color.Transparent,
     focusedIndicatorColor = GradientTop,
@@ -526,3 +521,55 @@ private fun registerFieldColors() = TextFieldDefaults.colors(
     focusedLabelColor = TextDark,
     unfocusedLabelColor = TextDark
 )
+
+@Preview(showBackground = true, showSystemUi = true, name = "Register - Idle")
+@Composable
+private fun RegisterScreenPreviewIdle() {
+    UmTaskTrackerTheme {
+        RegisterScreenContent(
+            uiState = RegisterUiState(
+                isCatalogsLoading = false,
+                roles = listOf(
+                    CatalogItem(1, "Куратор"),
+                    CatalogItem(2, "Менеджер"),
+                    CatalogItem(3, "Наставник")
+                ),
+                subjects = listOf(
+                    CatalogItem(1, "Математика"),
+                    CatalogItem(2, "Физика"),
+                    CatalogItem(3, "Русский язык")
+                ),
+                departments = listOf(
+                    CatalogItem(1, "ЕГЭ"),
+                    CatalogItem(2, "ОГЭ")
+                )
+            )
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Register - Loading")
+@Composable
+private fun RegisterScreenPreviewLoading() {
+    UmTaskTrackerTheme {
+        RegisterScreenContent(
+            uiState = RegisterUiState(isCatalogsLoading = true)
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Register - Error")
+@Composable
+private fun RegisterScreenPreviewError() {
+    UmTaskTrackerTheme {
+        RegisterScreenContent(
+            uiState = RegisterUiState(
+                isCatalogsLoading = false,
+                roles = listOf(CatalogItem(1, "Куратор")),
+                subjects = emptyList(),
+                departments = emptyList(),
+                submitError = "Пользователь с таким email уже существует"
+            )
+        )
+    }
+}

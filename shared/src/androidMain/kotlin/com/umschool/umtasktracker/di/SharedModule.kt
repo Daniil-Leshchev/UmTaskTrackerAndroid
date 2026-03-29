@@ -22,10 +22,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
-// Создаёт Koin-модуль с зависимостями shared-слоя
-// baseUrl и isDebug передаются из androidApp
 fun createSharedModule(baseUrl: String, isDebug: Boolean) = module {
-    // Сеть
     single {
         HttpClient(Android) {
             install(ContentNegotiation) {
@@ -46,19 +43,15 @@ fun createSharedModule(baseUrl: String, isDebug: Boolean) = module {
 
     single { AuthApiService(get(), baseUrl) }
 
-    // Хранилище
     single { TokenStorage(androidContext()) }
 
-    // Data
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
     single<CatalogRepository> { CatalogRepositoryImpl(get()) }
 
-    // Domain
     factory { LoginUseCase(get()) }
     factory { RegisterUseCase(get()) }
     factory { LoadCatalogsUseCase(get()) }
 
-    // Presentation
     viewModel { LoginViewModel(get()) }
     viewModel { RegisterViewModel(get(), get(), get()) }
 }
