@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -100,7 +101,7 @@ fun LoginScreenContent(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "Умная система мониторинга задач",
+                text = stringResource(R.string.app_name),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = Black,
@@ -152,7 +153,7 @@ fun LoginScreenContent(
             ) {
                 // Заголовок
                 Text(
-                    text = "Авторизация",
+                    text = stringResource(R.string.autorisation_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Normal,
                     color = TextDark,
@@ -166,7 +167,7 @@ fun LoginScreenContent(
                     value = email,
                     onValueChange = { email = it },
                     label = {
-                        Text(text = "Email", fontSize = 16.sp, color = TextDark)
+                        Text(text = stringResource(R.string.email_label), fontSize = 16.sp, color = TextDark)
                     },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
@@ -188,7 +189,7 @@ fun LoginScreenContent(
                     value = password,
                     onValueChange = { password = it },
                     label = {
-                        Text(text = "Пароль", fontSize = 16.sp, color = TextDark)
+                        Text(text = stringResource(R.string.password_label), fontSize = 16.sp, color = TextDark)
                     },
                     singleLine = true,
                     visualTransformation = if (passwordVisible)
@@ -197,7 +198,7 @@ fun LoginScreenContent(
                         PasswordVisualTransformation(),
                     trailingIcon = {
                         Text(
-                            text = if (passwordVisible) "Скрыть" else "Показать",
+                            text = if (passwordVisible) stringResource(R.string.hide_password_text) else stringResource(R.string.show_password_text),
                             color = GradientTop,
                             fontSize = 12.sp,
                             modifier = Modifier.clickable(
@@ -258,7 +259,7 @@ fun LoginScreenContent(
                             strokeWidth = 2.dp
                         )
                     } else {
-                        Text(text = "Войти", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                        Text(text = stringResource(R.string.login_link_text), fontSize = 16.sp, fontWeight = FontWeight.Medium)
                     }
                 }
 
@@ -274,13 +275,13 @@ fun LoginScreenContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "У Вас нет учётной записи?",
+                        text = stringResource(R.string.account_not_exists_text),
                         color = TextHint,
                         fontSize = 12.sp
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Зарегистрироваться",
+                        text = stringResource(R.string.register_button_text),
                         color = LinkCyan,
                         fontSize = 12.sp,
                         modifier = Modifier.clickable(
