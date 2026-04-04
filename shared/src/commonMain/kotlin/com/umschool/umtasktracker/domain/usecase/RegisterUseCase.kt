@@ -1,8 +1,8 @@
 package com.umschool.umtasktracker.domain.usecase
 
-import com.umschool.umtasktracker.domain.repository.CatalogRepository
+import com.umschool.umtasktracker.domain.repository.AuthRepository
 
-class RegisterUseCase(private val repository: CatalogRepository) {
+class RegisterUseCase(private val repository: AuthRepository) {
 
     suspend operator fun invoke(
         email: String,

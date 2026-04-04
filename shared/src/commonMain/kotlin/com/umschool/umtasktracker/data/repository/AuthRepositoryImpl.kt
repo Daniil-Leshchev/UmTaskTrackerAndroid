@@ -4,6 +4,7 @@ import com.umschool.umtasktracker.data.local.TokenStorage
 import com.umschool.umtasktracker.data.remote.api.ApiException
 import com.umschool.umtasktracker.data.remote.api.AuthApiService
 import com.umschool.umtasktracker.data.remote.dto.LoginRequest
+import com.umschool.umtasktracker.data.remote.dto.RegisterRequest
 import com.umschool.umtasktracker.domain.model.AuthToken
 import com.umschool.umtasktracker.domain.model.UserProfile
 import com.umschool.umtasktracker.domain.repository.AuthRepository
@@ -19,8 +20,6 @@ class AuthRepositoryImpl(
             tokenStorage.saveTokens(response.access, response.refresh)
             AuthToken(access = response.access, refresh = response.refresh)
         }.recoverCatching { throwable ->
-            println("LOGIN ERROR: ${throwable::class.simpleName}: ${throwable.message}")
-            throwable.printStackTrace()
             when (throwable) {
                 is ApiException -> throw throwable
                 else -> throw ApiException.NetworkError(throwable)
@@ -37,10 +36,37 @@ class AuthRepositoryImpl(
                 roleName = dto.role
             )
         }.recoverCatching { throwable ->
-            println("PROFILE ERROR: ${throwable::class.simpleName}: ${throwable.message}")
             when (throwable) {
                 is ApiException -> throw throwable
                 else -> throw ApiException.NetworkError(throwable)
             }
         }
+
+    override suspend fun register(
+        email: String,
+        password: String,
+        firstName: String,
+        lastName: String,
+        roleId: Int,
+        subjectId: Int,
+        departmentId: Int
+    ): Result<Unit> = runCatching {
+        apiService.register(
+            RegisterRequest(
+                email = email,
+                password = password,
+                name = "$firstName $lastName".trim(),
+                firstName = firstName,
+                lastName = lastName,
+                roleId = roleId,
+                subjectId = subjectId,
+                departmentId = departmentId
+            )
+        )
+    }.recoverCatching { throwable ->
+        when (throwable) {
+            is ApiException -> throw throwable
+            else -> throw ApiException.NetworkError(throwable)
+        }
+    }
 }
