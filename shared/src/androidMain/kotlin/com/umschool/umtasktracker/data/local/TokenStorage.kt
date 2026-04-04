@@ -6,6 +6,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import androidx.core.content.edit
 
 actual class TokenStorage(context: Context) {
 
@@ -24,20 +25,20 @@ actual class TokenStorage(context: Context) {
     private val _accessTokenFlow = MutableStateFlow(prefs.getString(KEY_ACCESS, null))
 
     actual suspend fun saveTokens(access: String, refresh: String) {
-        prefs.edit()
-            .putString(KEY_ACCESS, access)
-            .putString(KEY_REFRESH, refresh)
-            .apply()
+        prefs.edit {
+            putString(KEY_ACCESS, access)
+                .putString(KEY_REFRESH, refresh)
+        }
         _accessTokenFlow.value = access
     }
 
     actual fun getAccessToken(): Flow<String?> = _accessTokenFlow
 
     actual suspend fun clearTokens() {
-        prefs.edit()
-            .remove(KEY_ACCESS)
-            .remove(KEY_REFRESH)
-            .apply()
+        prefs.edit {
+            remove(KEY_ACCESS)
+                .remove(KEY_REFRESH)
+        }
         _accessTokenFlow.value = null
     }
 
