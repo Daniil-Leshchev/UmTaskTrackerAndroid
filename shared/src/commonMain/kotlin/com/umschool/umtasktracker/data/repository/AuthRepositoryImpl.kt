@@ -1,7 +1,6 @@
 package com.umschool.umtasktracker.data.repository
 
 import com.umschool.umtasktracker.data.local.TokenStorage
-import com.umschool.umtasktracker.data.remote.api.ApiException
 import com.umschool.umtasktracker.data.remote.api.AuthApiService
 import com.umschool.umtasktracker.data.remote.dto.LoginRequest
 import com.umschool.umtasktracker.data.remote.dto.RegisterRequest
@@ -14,33 +13,21 @@ class AuthRepositoryImpl(
     private val tokenStorage: TokenStorage
 ) : AuthRepository {
 
-    override suspend fun login(email: String, password: String): Result<AuthToken> =
-        runCatching {
-            val response = apiService.login(LoginRequest(email, password))
-            tokenStorage.saveTokens(response.access, response.refresh)
-            AuthToken(access = response.access, refresh = response.refresh)
-        }.recoverCatching { throwable ->
-            when (throwable) {
-                is ApiException -> throw throwable
-                else -> throw ApiException.NetworkError(throwable)
-            }
-        }
+    override suspend fun login(email: String, password: String): Result<AuthToken> = safeApiCall {
+        val response = apiService.login(LoginRequest(email, password))
+        tokenStorage.saveTokens(response.access, response.refresh)
+        AuthToken(access = response.access, refresh = response.refresh)
+    }
 
-    override suspend fun getProfile(accessToken: String): Result<UserProfile> =
-        runCatching {
-            val dto = apiService.getProfile(accessToken)
-            UserProfile(
-                email = dto.email,
-                name = "${dto.firstName} ${dto.lastName}".trim(),
-                isAdmin = dto.isAdmin,
-                roleName = dto.role
-            )
-        }.recoverCatching { throwable ->
-            when (throwable) {
-                is ApiException -> throw throwable
-                else -> throw ApiException.NetworkError(throwable)
-            }
-        }
+    override suspend fun getProfile(accessToken: String): Result<UserProfile> = safeApiCall {
+        val dto = apiService.getProfile(accessToken)
+        UserProfile(
+            email = dto.email,
+            name = "${dto.firstName} ${dto.lastName}".trim(),
+            isAdmin = dto.isAdmin,
+            roleName = dto.role
+        )
+    }
 
     override suspend fun register(
         email: String,
@@ -50,7 +37,7 @@ class AuthRepositoryImpl(
         roleId: Int,
         subjectId: Int,
         departmentId: Int
-    ): Result<Unit> = runCatching {
+    ): Result<Unit> = safeApiCall {
         apiService.register(
             RegisterRequest(
                 email = email,
@@ -63,10 +50,5 @@ class AuthRepositoryImpl(
                 departmentId = departmentId
             )
         )
-    }.recoverCatching { throwable ->
-        when (throwable) {
-            is ApiException -> throw throwable
-            else -> throw ApiException.NetworkError(throwable)
-        }
     }
 }
