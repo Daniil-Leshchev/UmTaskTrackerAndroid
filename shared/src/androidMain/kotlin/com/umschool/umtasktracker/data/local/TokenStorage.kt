@@ -1,38 +1,48 @@
 package com.umschool.umtasktracker.data.local
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
+import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_tokens")
+import kotlinx.coroutines.flow.MutableStateFlow
 
-actual class TokenStorage(private val context: Context) {
+actual class TokenStorage(context: Context) {
 
-    private companion object {
-        val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
-        val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
-    }
+    private val masterKey = MasterKey.Builder(context)
+        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+        .build()
+
+    private val prefs: SharedPreferences = EncryptedSharedPreferences.create(
+        context,
+        "encrypted_auth_tokens",
+        masterKey,
+        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+    )
+
+    private val _accessTokenFlow = MutableStateFlow(prefs.getString(KEY_ACCESS, null))
 
     actual suspend fun saveTokens(access: String, refresh: String) {
-        context.dataStore.edit { prefs ->
-            prefs[ACCESS_TOKEN_KEY] = access
-            prefs[REFRESH_TOKEN_KEY] = refresh
-        }
+        prefs.edit()
+            .putString(KEY_ACCESS, access)
+            .putString(KEY_REFRESH, refresh)
+            .apply()
+        _accessTokenFlow.value = access
     }
 
-    actual fun getAccessToken(): Flow<String?> =
-        context.dataStore.data.map { prefs ->
-            prefs[ACCESS_TOKEN_KEY]
-        }
+    actual fun getAccessToken(): Flow<String?> = _accessTokenFlow
 
     actual suspend fun clearTokens() {
-        context.dataStore.edit { prefs ->
-            prefs.remove(ACCESS_TOKEN_KEY)
-            prefs.remove(REFRESH_TOKEN_KEY)
-        }
+        prefs.edit()
+            .remove(KEY_ACCESS)
+            .remove(KEY_REFRESH)
+            .apply()
+        _accessTokenFlow.value = null
+    }
+
+    private companion object {
+        const val KEY_ACCESS = "access_token"
+        const val KEY_REFRESH = "refresh_token"
     }
 }

@@ -50,6 +50,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.ktor.client.android)
             implementation(libs.androidx.datastore.preferences)
+            implementation(libs.androidx.security.crypto)
             implementation(libs.androidx.lifecycle.viewmodel.compose)
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
