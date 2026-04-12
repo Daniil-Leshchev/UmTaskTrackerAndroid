@@ -37,7 +37,7 @@ import umtasktracker.shared.generated.resources.*
 
 @Composable
 fun LoginScreen(
-    onLoginSuccess: (UserRole) -> Unit,
+    onLoginSuccess: (UserRole, Boolean) -> Unit,
     onNavigateToRegister: () -> Unit = {},
     viewModel: LoginViewModel = koinViewModel()
 ) {
@@ -45,7 +45,8 @@ fun LoginScreen(
 
     LaunchedEffect(uiState) {
         if (uiState is LoginUiState.Success) {
-            onLoginSuccess((uiState as LoginUiState.Success).role)
+            val state = uiState as LoginUiState.Success
+            onLoginSuccess(state.role, state.isApproved)
         }
     }
 

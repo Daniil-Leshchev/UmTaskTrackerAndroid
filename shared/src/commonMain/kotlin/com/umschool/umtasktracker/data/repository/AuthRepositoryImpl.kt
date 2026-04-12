@@ -25,7 +25,8 @@ class AuthRepositoryImpl(
             email = dto.email,
             name = "${dto.firstName} ${dto.lastName}".trim(),
             isAdmin = dto.isAdmin,
-            roleName = dto.role
+            roleName = dto.role,
+            isApproved = dto.isApproved
         )
     }
 

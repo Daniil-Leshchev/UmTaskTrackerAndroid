@@ -14,5 +14,6 @@ data class RegisterUiState(
     val isSubmitting: Boolean = false,
     val submitError: String? = null,
 
-    val loginSuccess: UserRole? = null
+    val loginSuccess: UserRole? = null,
+    val isRegistrationSuccess: Boolean = false
 )

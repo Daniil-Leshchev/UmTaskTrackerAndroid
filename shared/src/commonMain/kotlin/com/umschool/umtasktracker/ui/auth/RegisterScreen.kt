@@ -41,17 +41,15 @@ import umtasktracker.shared.generated.resources.*
 
 @Composable
 fun RegisterScreen(
-    onLoginSuccess: (UserRole) -> Unit = {},
     onRegistrationSuccess: () -> Unit = {},
     onNavigateToLogin: () -> Unit = {},
     viewModel: RegisterViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(uiState.loginSuccess) {
-        val role = uiState.loginSuccess
-        if (role != null) {
-            onLoginSuccess(role)
+    LaunchedEffect(uiState.isRegistrationSuccess) {
+        if (uiState.isRegistrationSuccess) {
+            onRegistrationSuccess()
         }
     }
 

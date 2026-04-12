@@ -1,13 +1,7 @@
 package com.umschool.umtasktracker.ui.navigation
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,34 +9,67 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.umschool.umtasktracker.data.local.TokenStorage
 import com.umschool.umtasktracker.domain.model.UserRole
+import com.umschool.umtasktracker.domain.repository.AuthRepository
 import com.umschool.umtasktracker.ui.auth.LoginScreen
+import com.umschool.umtasktracker.ui.auth.NotApprovedScreen
 import com.umschool.umtasktracker.ui.auth.RegisterScreen
+import com.umschool.umtasktracker.ui.tasks.CuratorTasksScreen
+import com.umschool.umtasktracker.ui.tasks.ManagerTasksScreen
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @Composable
 fun AppNavGraph() {
     val navController = rememberNavController()
     val tokenStorage: TokenStorage = koinInject()
+    val authRepository: AuthRepository = koinInject()
 
     var startDestination by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         val token = tokenStorage.getAccessToken().firstOrNull()
-        startDestination = if (token != null) {
-            Screen.Home.createRoute("manager")
-        } else {
-            Screen.Login.route
+
+        if (token == null) {
+            startDestination = Screen.Login.route
+            return@LaunchedEffect
         }
+
+        val result = authRepository.getProfile(token)
+
+        result
+            .onSuccess { profile ->
+
+                if (!profile.isApproved) {
+                    startDestination = Screen.NotApproved.route
+                    return@onSuccess
+                }
+
+                val roleType = when (UserRole.fromProfile(profile)) {
+                    is UserRole.Curator -> "curator"
+                    is UserRole.Manager -> "manager"
+                    is UserRole.Admin -> "admin"
+                }
+                startDestination = Screen.Home.createRoute(roleType)
+            }
+            .onFailure {
+                tokenStorage.clearTokens()
+                startDestination = Screen.Login.route
+            }
     }
 
-    val start = startDestination ?: return
+    val start = startDestination
+    if (start == null) return
 
     NavHost(navController = navController, startDestination = start) {
         composable(Screen.Login.route) {
             LoginScreen(
-                onLoginSuccess = { role ->
+                onLoginSuccess = { role, isApproved ->
+                    if (!isApproved) {
+                        navController.navigate(Screen.NotApproved.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                        }
+                        return@LoginScreen
+                    }
                     val roleType = when (role) {
                         is UserRole.Curator -> "curator"
                         is UserRole.Manager -> "manager"
@@ -60,18 +87,10 @@ fun AppNavGraph() {
 
         composable(Screen.Register.route) {
             RegisterScreen(
-                onLoginSuccess = { role ->
-                    val roleType = when (role) {
-                        is UserRole.Curator -> "curator"
-                        is UserRole.Manager -> "manager"
-                        is UserRole.Admin -> "admin"
-                    }
-                    navController.navigate(Screen.Home.createRoute(roleType)) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
-                    }
-                },
                 onRegistrationSuccess = {
-                    navController.popBackStack()
+                    navController.navigate(Screen.NotApproved.route) {
+                        popUpTo(Screen.Register.route) { inclusive = true }
+                    }
                 },
                 onNavigateToLogin = {
                     navController.popBackStack()
@@ -79,48 +98,27 @@ fun AppNavGraph() {
             )
         }
 
+        composable(Screen.NotApproved.route) {
+            NotApprovedScreen(onGoToLogin = {
+                navController.navigate(Screen.Login.route) {
+                    popUpTo(0) { inclusive = true }
+                }
+            })
+        }
+
         composable(
             route = Screen.Home.route,
             arguments = listOf(navArgument("roleType") { type = NavType.StringType })
         ) { backStackEntry ->
-            val roleType = backStackEntry.arguments?.getString("roleType") ?: "manager"
-            HomeScreenStub(
-                roleType = roleType,
-                onLogout = {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
-            )
-        }
-    }
-}
 
-@Composable
-private fun HomeScreenStub(
-    roleType: String,
-    onLogout: () -> Unit
-) {
-    val tokenStorage: TokenStorage = koinInject()
-    val scope = rememberCoroutineScope()
+            val roleType = backStackEntry.arguments?.getString("roleType")
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Добро пожаловать!",
-            style = MaterialTheme.typography.headlineMedium
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        Button(onClick = {
-            scope.launch {
-                tokenStorage.clearTokens()
-                onLogout()
+            when (roleType) {
+                "manager" -> ManagerTasksScreen()
+                "admin" -> ManagerTasksScreen()
+                "curator" -> CuratorTasksScreen()
+                else -> Text("Unknown role")
             }
-        }) {
-            Text("Выйти")
         }
     }
 }

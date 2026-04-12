@@ -3,5 +3,6 @@ data class UserProfile(
     val email: String,
     val name: String,
     val isAdmin: Boolean,
-    val roleName: String
+    val roleName: String,
+    val isApproved: Boolean
 )

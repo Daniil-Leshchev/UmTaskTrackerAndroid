@@ -17,8 +17,11 @@ class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {
         _uiState.value = LoginUiState.Loading
         viewModelScope.launch {
             loginUseCase(email, password)
-                .onSuccess { role ->
-                    _uiState.value = LoginUiState.Success(role)
+                .onSuccess { result ->
+                    _uiState.value = LoginUiState.Success(
+                        role = result.role,
+                        isApproved = result.isApproved
+                    )
                 }
                 .onFailure { error ->
                     _uiState.value = LoginUiState.Error(

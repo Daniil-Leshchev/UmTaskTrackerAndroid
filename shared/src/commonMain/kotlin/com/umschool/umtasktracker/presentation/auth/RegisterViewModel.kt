@@ -85,7 +85,7 @@ class RegisterViewModel(
         loginUseCase(email, password)
             .onSuccess { role ->
                 _uiState.update {
-                    it.copy(isSubmitting = false, loginSuccess = role)
+                    it.copy(isSubmitting = false, isRegistrationSuccess = true)
                 }
             }
             .onFailure { error ->
