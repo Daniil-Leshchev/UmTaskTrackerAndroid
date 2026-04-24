@@ -27,6 +27,12 @@ fun CuratorTaskItem(task: CuratorTask) {
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row {
+//                when (task.status) {
+//                    TaskStatus.COMPLETED -> Icon(Icons.Filled.CheckCircle, null, tint = Color.Green)
+//                    TaskStatus.IN_PROGRESS -> Icon(Icons.Filled.Schedule, null, tint = Color.Blue)
+//                    TaskStatus.OVERDUE -> Icon(Icons.Filled.Cancel, null, tint = Color.Red)
+//                }
+//                Spacer(modifier = Modifier.width(8.dp))
                 Text(text = task.status.label, style = MaterialTheme.typography.labelMedium)
             }
         }
