@@ -12,7 +12,7 @@ data class TaskDto(
     val deadline: String,
     val created: String,
     val status: String,
-    @SerialName("completed_at") val completedAt: Boolean,
-    @SerialName("report_text") val reportText: Boolean,
+    @SerialName("completed_at") val completedAt: Boolean? = null,
+    @SerialName("report_text") val reportText: Boolean? = null,
     @SerialName("report_url") val reportUrl: String? = null
 )

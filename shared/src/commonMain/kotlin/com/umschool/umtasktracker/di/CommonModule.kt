@@ -26,7 +26,7 @@ fun commonModule(baseUrl: String, isDebug: Boolean) = module {
 
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
     single<CatalogRepository> { CatalogRepositoryImpl(get()) }
-    single<CuratorRepository> { CuratorRepositoryImpl(get()) }
+    single<CuratorRepository> { CuratorRepositoryImpl(get(), get()) }
 
     factory { LoginUseCase(get()) }
     factory { RegisterUseCase(get()) }

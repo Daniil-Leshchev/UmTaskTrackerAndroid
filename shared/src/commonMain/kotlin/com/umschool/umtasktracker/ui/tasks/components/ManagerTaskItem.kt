@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun TaskCard() {
+fun ManagerTaskItem() {
     Card(
         shape = RoundedCornerShape(16.dp)
     ) {

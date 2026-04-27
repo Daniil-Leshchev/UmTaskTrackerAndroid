@@ -13,7 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.umschool.umtasktracker.ui.tasks.components.TaskCard
+import com.umschool.umtasktracker.ui.tasks.components.ManagerTaskItem
 
 @Composable
 fun ManagerTasksScreen() {
@@ -36,7 +36,7 @@ fun ManagerTasksScreen() {
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(6) {
-                TaskCard()
+                ManagerTaskItem()
             }
         }
     }

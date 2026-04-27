@@ -16,16 +16,16 @@ data class CuratorTask(
 enum class TaskStatus(val label: String) {
     IN_PROGRESS("В работе"),
     COMPLETED("Выполнено"),
-    OVERDUE("Просрочено"),
-    NOT_STARTED("Не начато");
+    COMPLETED_LATE("Выполнено не в срок"),
+    OVERDUE("Просрочено");
 
     companion object {
         fun fromString(value: String): TaskStatus = when (value.lowercase()) {
-            "в работе" -> IN_PROGRESS
-            "выполнено" -> COMPLETED
-            "просрочено" -> OVERDUE
-            "не начато" -> NOT_STARTED
-            else -> NOT_STARTED
+            "in_progress" -> IN_PROGRESS
+            "completed" -> COMPLETED
+            "completed_late" -> COMPLETED_LATE
+            "overdue" -> OVERDUE
+            else -> IN_PROGRESS
         }
     }
 }
