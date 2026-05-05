@@ -1,5 +1,6 @@
 package com.umschool.umtasktracker.ui.tasks.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -26,28 +27,34 @@ import com.umschool.umtasktracker.ui.theme.CardBackground
 
 @Composable
 fun CuratorTaskItem(task: CuratorTask) {
-    Column(
-        modifier = Modifier
-            .padding(vertical = 8.dp)
-            .background(Color.White)
-            .border(0.5.dp, Color.LightGray))
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.padding(vertical = 2.dp),
+        border = BorderStroke(0.3.dp, Color.LightGray)
+    )
         {
-
-            Row(modifier = Modifier.fillMaxWidth()) {
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .background(task.status.toColor().copy(alpha = 0.7f))) {
                 Card(
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
+                    Column(modifier = Modifier
+                        .background(Color.White)
+                        .padding(16.dp)
+                    ) {
                         Text(
                             text = task.title,
                             style = MaterialTheme.typography.titleMedium
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(30.dp))
                         Row {
                             Text(
                                 text = task.status.label,
-                                style = MaterialTheme.typography.labelLarge
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    color = task.status.toColor().copy(alpha = 0.7f)
+                                )
                             )
                             Spacer(modifier = Modifier.weight(1f))
                             Text(

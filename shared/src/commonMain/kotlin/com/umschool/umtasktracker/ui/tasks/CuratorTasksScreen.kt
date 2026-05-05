@@ -48,24 +48,24 @@ fun CuratorTasksScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(CardBackground)
-            .padding(16.dp)
-            .systemBarsPadding()
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.White)
                 .border(0.1.dp, Color.LightGray)
-                .padding(horizontal = 130.dp, vertical = 10.dp)
+                .systemBarsPadding()
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = "Задачи",
                     style = MaterialTheme.typography.labelLarge
                 )
+
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Text(
@@ -79,49 +79,50 @@ fun CuratorTasksScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Column(modifier = Modifier.padding(16.dp))
+        {
+            TaskStatusBar(
+                uiState = uiState,
+                onFilterSelected = viewModel::onFilterSelected
+            )
 
-        TaskStatusBar(
-            uiState = uiState,
-            onFilterSelected = viewModel::onFilterSelected
-        )
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+            OutlinedTextField(
+                value = uiState.searchQuery,
+                onValueChange = viewModel::onSearchChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                placeholder = { Text("Введите название задачи") },
+                trailingIcon = {
+                    Icon(
+                        Icons.Default.Search,
+                        contentDescription = "Поиск",
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                },
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                focusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
+                unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
+                focusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
+                unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
+                cursorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                ),
+            shape = RoundedCornerShape(8.dp),
+            )
 
-        OutlinedTextField(
-            value = uiState.searchQuery,
-            onValueChange = viewModel::onSearchChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            placeholder = { Text("Введите название задачи") },
-            trailingIcon = {
-                Icon(
-                    Icons.Default.Search,
-                    contentDescription = "Поиск",
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-            },
-            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
-            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-            focusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
-            focusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-            unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
-            cursorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
-            ),
-        shape = RoundedCornerShape(8.dp),
-        )
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(uiState.filteredTasks) { task ->
-                CuratorTaskItem(task = task)
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(uiState.filteredTasks) { task ->
+                    CuratorTaskItem(task = task)
+                }
             }
         }
     }
