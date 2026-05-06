@@ -2,7 +2,6 @@ package com.umschool.umtasktracker.ui.tasks.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -23,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.umschool.umtasktracker.domain.model.CuratorTask
 import com.umschool.umtasktracker.domain.model.TaskStatus
-import com.umschool.umtasktracker.ui.theme.CardBackground
 
 @Composable
 fun CuratorTaskItem(task: CuratorTask) {

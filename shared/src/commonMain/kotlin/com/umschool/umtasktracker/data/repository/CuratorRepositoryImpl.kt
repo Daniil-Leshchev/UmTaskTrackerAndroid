@@ -2,7 +2,7 @@ package com.umschool.umtasktracker.data.repository
 
 import com.umschool.umtasktracker.data.local.TokenStorage
 import com.umschool.umtasktracker.data.remote.api.CuratorApiService
-import com.umschool.umtasktracker.data.remote.dto.TaskDto
+import com.umschool.umtasktracker.data.remote.dto.CuratorTaskDto
 import com.umschool.umtasktracker.domain.model.CuratorTask
 import com.umschool.umtasktracker.domain.model.TaskStatus
 import com.umschool.umtasktracker.domain.repository.CuratorRepository
@@ -22,7 +22,7 @@ class CuratorRepositoryImpl(
     }
 }
 
-private fun TaskDto.toDomain() = CuratorTask(
+private fun CuratorTaskDto.toDomain() = CuratorTask(
     id = id,
     title = title,
     description = description,

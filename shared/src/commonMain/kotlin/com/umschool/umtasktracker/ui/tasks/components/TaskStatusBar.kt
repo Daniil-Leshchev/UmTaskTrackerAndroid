@@ -31,8 +31,8 @@ import umtasktracker.shared.generated.resources.*
 
 @Composable
 fun TaskStatusBar(
-    uiState: CuratorTasksUiState,
-    onFilterSelected: (TaskFilter) -> Unit
+    state: TaskStatusBarState,
+    onFilterSelected: (String) -> Unit
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceAround,
@@ -41,33 +41,33 @@ fun TaskStatusBar(
         StatusBlock(
             imageRes = Res.drawable.ic_completed,
             label = "Завершено",
-            value = uiState.completedCount.toString(),
+            value = state.completedCount.toString(),
             color = Color.Green,
-            onClick = { onFilterSelected(TaskFilter.COMPLETED) }
+            onClick = { onFilterSelected(TaskFilter.COMPLETED.name) }
         )
 
         StatusBlock(
             imageRes = Res.drawable.ic_in_progress,
             label = "В работе",
-            value = uiState.inProgressCount.toString(),
+            value = state.inProgressCount.toString(),
             color = MaterialTheme.colorScheme.primary,
-            onClick = { onFilterSelected(TaskFilter.IN_PROGRESS) }
+            onClick = { onFilterSelected(TaskFilter.IN_PROGRESS.name) }
         )
 
         StatusBlock(
             imageRes = Res.drawable.ic_overdue,
             label = "Просрочено",
-            value = uiState.overdueCount.toString(),
+            value = state.overdueCount.toString(),
             color = MaterialTheme.colorScheme.error,
-            onClick = { onFilterSelected(TaskFilter.OVERDUE) }
+            onClick = { onFilterSelected(TaskFilter.OVERDUE.name) }
         )
 
         StatusBlock(
             imageRes = Res.drawable.Bear,
             label = "Выполнено в срок",
-            value = "${uiState.successPercent}%",
+            value = "${state.successPercent}%",
             color = UmOrange,
-            onClick = { onFilterSelected(TaskFilter.COMPLETED_ON_TIME) }
+            onClick = { onFilterSelected(TaskFilter.COMPLETED_ON_TIME.name) }
         )
     }
 }
@@ -116,3 +116,10 @@ private fun StatusBlock(
         )
     }
 }
+
+data class TaskStatusBarState(
+    val completedCount: Int,
+    val inProgressCount: Int,
+    val overdueCount: Int,
+    val successPercent: Int
+)

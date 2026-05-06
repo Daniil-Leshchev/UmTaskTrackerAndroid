@@ -36,6 +36,8 @@ import com.umschool.umtasktracker.ui.theme.UmOrange
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import com.umschool.umtasktracker.presentation.curator.TaskFilter
+import com.umschool.umtasktracker.presentation.curator.toStatusBarState
 import com.umschool.umtasktracker.ui.theme.CardBackground
 
 @Composable
@@ -82,8 +84,10 @@ fun CuratorTasksScreen(
         Column(modifier = Modifier.padding(16.dp))
         {
             TaskStatusBar(
-                uiState = uiState,
-                onFilterSelected = viewModel::onFilterSelected
+                state = uiState.toStatusBarState(),
+                onFilterSelected = { filter ->
+                    viewModel.onFilterSelected(TaskFilter.valueOf(filter))
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))

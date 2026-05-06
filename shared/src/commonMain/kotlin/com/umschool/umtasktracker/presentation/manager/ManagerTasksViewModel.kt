@@ -1,21 +1,21 @@
-package com.umschool.umtasktracker.presentation.curator
+package com.umschool.umtasktracker.presentation.manager
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.umschool.umtasktracker.domain.model.CuratorTask
+import com.umschool.umtasktracker.domain.model.ManagerTask
 import com.umschool.umtasktracker.domain.model.TaskStatus
-import com.umschool.umtasktracker.domain.usecase.GetCuratorTasksUseCase
+import com.umschool.umtasktracker.domain.usecase.GetManagerTasksUseCase
 import com.umschool.umtasktracker.ui.tasks.components.TaskStatusBarState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class CuratorTasksViewModel(
-    private val getCuratorTasks: GetCuratorTasksUseCase
+class ManagerTasksViewModel(
+    private val getManagerTasks: GetManagerTasksUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(CuratorTasksUiState())
-    val uiState: StateFlow<CuratorTasksUiState> = _uiState
+    private val _uiState = MutableStateFlow(ManagerTasksUiState())
+    val uiState: StateFlow<ManagerTasksUiState> = _uiState
 
     init {
         loadTasks()
@@ -23,8 +23,9 @@ class CuratorTasksViewModel(
 
     fun loadTasks() {
         _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+
         viewModelScope.launch {
-            getCuratorTasks()
+            getManagerTasks()
                 .onSuccess { tasks ->
                     _uiState.value = _uiState.value.copy(
                         tasks = tasks,
@@ -44,59 +45,70 @@ class CuratorTasksViewModel(
         _uiState.value = _uiState.value.copy(searchQuery = query)
     }
 
-    fun onFilterSelected(filter: TaskFilter) {
+    fun onFilterSelected(filter: ManagerTaskFilter) {
         _uiState.value = _uiState.value.copy(selectedFilter = filter)
     }
 }
 
-data class CuratorTasksUiState(
-    val tasks: List<CuratorTask> = emptyList(),
+data class ManagerTasksUiState(
+    val tasks: List<ManagerTask> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
 
     val searchQuery: String = "",
-    val selectedFilter: TaskFilter = TaskFilter.ALL
+    val selectedFilter: ManagerTaskFilter = ManagerTaskFilter.ALL
 ) {
-    val filteredTasks: List<CuratorTask>
+
+    val filteredTasks: List<ManagerTask>
         get() = tasks
             .filter { task ->
                 when (selectedFilter) {
-                    TaskFilter.ALL -> true
+                    ManagerTaskFilter.ALL -> true
 
-                    TaskFilter.COMPLETED ->
-                        task.status == TaskStatus.COMPLETED || task.status == TaskStatus.COMPLETED_LATE
+                    ManagerTaskFilter.COMPLETED ->
+                        task.status == TaskStatus.COMPLETED ||
+                                task.status == TaskStatus.COMPLETED_LATE
 
-                    TaskFilter.IN_PROGRESS ->
+                    ManagerTaskFilter.IN_PROGRESS ->
                         task.status == TaskStatus.IN_PROGRESS
 
-                    TaskFilter.OVERDUE ->
+                    ManagerTaskFilter.OVERDUE ->
                         task.status == TaskStatus.OVERDUE
 
-                    TaskFilter.COMPLETED_ON_TIME ->
+                    ManagerTaskFilter.COMPLETED_ON_TIME ->
                         task.status == TaskStatus.COMPLETED
                 }
             }
             .filter {
                 it.title.contains(searchQuery, ignoreCase = true)
             }
+    val completedTasks
+        get() = tasks.sumOf { (it.completed).toInt() }
 
-    val completedCount get() = tasks.count { it.status == TaskStatus.COMPLETED || it.status == TaskStatus.COMPLETED_LATE }
-    val completedOnTimeCount get() = tasks.count { it.status == TaskStatus.COMPLETED}
-    val inProgressCount get() = tasks.count { it.status == TaskStatus.IN_PROGRESS }
-    val overdueCount get() = tasks.count { it.status == TaskStatus.OVERDUE}
+    val inProgressTasks
+        get() = tasks.sumOf {
+            (it.total).toInt() - (it.completed).toInt()
+        }
+
+    val overdueTasks
+        get() = tasks.count { it.status == TaskStatus.OVERDUE }
 
     val successPercent: Int
-        get() = if (tasks.isEmpty()) 0
-        else (completedOnTimeCount * 100) / tasks.size
+        get() {
+            val total = tasks.sumOf { (it.total).toInt() }
+            val onTime = tasks.sumOf { (it.on_time ?: 0).toInt() }
+
+            return if (total == 0) 0 else (onTime * 100) / total
+        }
 }
 
-enum class TaskFilter {
+enum class ManagerTaskFilter {
     ALL, COMPLETED, IN_PROGRESS, OVERDUE, COMPLETED_ON_TIME
 }
 
-fun CuratorTasksUiState.toStatusBarState() = TaskStatusBarState(
-    completedCount = completedCount,
-    inProgressCount = inProgressCount,
-    overdueCount = overdueCount,
+fun ManagerTasksUiState.toStatusBarState() = TaskStatusBarState(
+    completedCount = completedTasks,
+    inProgressCount = inProgressTasks,
+    overdueCount = overdueTasks,
     successPercent = successPercent,
 )
