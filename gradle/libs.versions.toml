@@ -13,6 +13,7 @@ espressoCore = "3.5.1"
 ktor = "3.0.3"
 kotlinxSerialization = "1.7.3"
 kotlinxCoroutines = "1.9.0"
+kotlinxDatetime = "0.6.1"
 koin = "4.0.2"
 materialIconsExtended = "1.4.0"
 navigationCompose = "2.8.4"
@@ -53,6 +54,7 @@ ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
 
 # Navigation (CMP)
 navigation-compose-cmp = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "navigationComposeCmp" }

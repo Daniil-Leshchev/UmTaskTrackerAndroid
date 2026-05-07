@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.umschool.umtasktracker.domain.model.ManagerTask
+import com.umschool.umtasktracker.presentation.util.DateFormatter
 
 @Composable
 fun ManagerTaskItem(task: ManagerTask) {
@@ -51,7 +52,7 @@ fun ManagerTaskItem(task: ManagerTask) {
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    text = task.deadline,
+                    text = DateFormatter.formatMoscow(task.deadline) ?: "—",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
