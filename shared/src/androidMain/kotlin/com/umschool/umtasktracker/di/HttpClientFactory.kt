@@ -21,6 +21,6 @@ actual fun createPlatformHttpClient(isDebug: Boolean): HttpClient = HttpClient(A
         requestTimeoutMillis = 15_000
     }
     install(Logging) {
-        level = if (isDebug) LogLevel.HEADERS else LogLevel.NONE
+        level = if (isDebug) LogLevel.ALL else LogLevel.NONE
     }
 }

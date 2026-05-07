@@ -11,14 +11,18 @@ import com.umschool.umtasktracker.domain.repository.AuthRepository
 import com.umschool.umtasktracker.domain.repository.CatalogRepository
 import com.umschool.umtasktracker.domain.repository.CuratorRepository
 import com.umschool.umtasktracker.domain.repository.ManagerRepository
+import com.umschool.umtasktracker.domain.usecase.CreateTaskUseCase
+import com.umschool.umtasktracker.domain.usecase.GetAssignmentPolicyUseCase
 import com.umschool.umtasktracker.domain.usecase.GetCuratorTasksUseCase
 import com.umschool.umtasktracker.domain.usecase.GetManagerTasksUseCase
+import com.umschool.umtasktracker.domain.usecase.GetRecipientsUseCase
 import com.umschool.umtasktracker.domain.usecase.LoadCatalogsUseCase
 import com.umschool.umtasktracker.domain.usecase.LoginUseCase
 import com.umschool.umtasktracker.domain.usecase.RegisterUseCase
 import com.umschool.umtasktracker.presentation.auth.LoginViewModel
 import com.umschool.umtasktracker.presentation.auth.RegisterViewModel
 import com.umschool.umtasktracker.presentation.curator.CuratorTasksViewModel
+import com.umschool.umtasktracker.presentation.manager.CreateTaskViewModel
 import com.umschool.umtasktracker.presentation.manager.ManagerTasksViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -40,9 +44,13 @@ fun commonModule(baseUrl: String, isDebug: Boolean) = module {
     factory { LoadCatalogsUseCase(get()) }
     factory { GetCuratorTasksUseCase(get()) }
     factory { GetManagerTasksUseCase(get()) }
+    factory { GetAssignmentPolicyUseCase(get()) }
+    factory { GetRecipientsUseCase(get()) }
+    factory { CreateTaskUseCase(get()) }
 
     viewModel { LoginViewModel(get()) }
     viewModel { RegisterViewModel(get(), get(), get()) }
     viewModel { CuratorTasksViewModel(get()) }
     viewModel { ManagerTasksViewModel(get()) }
+    viewModel { CreateTaskViewModel(get(), get(), get()) }
 }

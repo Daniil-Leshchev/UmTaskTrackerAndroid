@@ -13,6 +13,7 @@ import com.umschool.umtasktracker.domain.repository.AuthRepository
 import com.umschool.umtasktracker.ui.auth.LoginScreen
 import com.umschool.umtasktracker.ui.auth.NotApprovedScreen
 import com.umschool.umtasktracker.ui.auth.RegisterScreen
+import com.umschool.umtasktracker.ui.tasks.CreateTaskScreen
 import com.umschool.umtasktracker.ui.tasks.CuratorTasksScreen
 import com.umschool.umtasktracker.ui.tasks.ManagerTasksScreen
 import kotlinx.coroutines.flow.firstOrNull
@@ -114,11 +115,22 @@ fun AppNavGraph() {
             val roleType = backStackEntry.arguments?.getString("roleType")
 
             when (roleType) {
-                "manager" -> ManagerTasksScreen()
-                "admin" -> ManagerTasksScreen()
+                "manager" -> ManagerTasksScreen(
+                    onCreateTask = { navController.navigate(Screen.CreateTask.route) }
+                )
+                "admin" -> ManagerTasksScreen(
+                    onCreateTask = { navController.navigate(Screen.CreateTask.route) }
+                )
                 "curator" -> CuratorTasksScreen()
                 else -> Text("Unknown role")
             }
+        }
+
+        composable(Screen.CreateTask.route) {
+            CreateTaskScreen(
+                onTaskCreated = { navController.popBackStack() },
+                onCancel = { navController.popBackStack() }
+            )
         }
     }
 }

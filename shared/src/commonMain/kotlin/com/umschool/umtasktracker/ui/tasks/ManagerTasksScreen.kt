@@ -47,6 +47,7 @@ import com.umschool.umtasktracker.ui.theme.CardBackground
 
 @Composable
 fun ManagerTasksScreen(
+    onCreateTask: () -> Unit = {},
     viewModel: ManagerTasksViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -55,9 +56,7 @@ fun ManagerTasksScreen(
         containerColor = CardBackground,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {
-                    // TODO: открыть экран создания задачи
-                },
+                onClick = onCreateTask,
                 containerColor = UmOrange,
                 shape = RoundedCornerShape(12.dp),
             ) {
@@ -76,7 +75,6 @@ fun ManagerTasksScreen(
                 .padding(padding)
         ) {
 
-            // 🔝 Header
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

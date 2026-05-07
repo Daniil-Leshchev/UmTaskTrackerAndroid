@@ -1,7 +1,12 @@
 package com.umschool.umtasktracker.data.remote.api
 
+import com.umschool.umtasktracker.data.remote.dto.AssignmentPolicyDto
+import com.umschool.umtasktracker.data.remote.dto.CreateTaskGroupDto
+import com.umschool.umtasktracker.data.remote.dto.CreateTaskIndividualDto
+import com.umschool.umtasktracker.data.remote.dto.CreateTaskResponseDto
 import com.umschool.umtasktracker.data.remote.dto.FetchTasksParams
 import com.umschool.umtasktracker.data.remote.dto.ManagerTaskDto
+import com.umschool.umtasktracker.data.remote.dto.RecipientDto
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -38,6 +43,48 @@ class ManagerApiService(
             }
         }
 
+        handleErrors(response.status)
+        return response.body()
+    }
+
+    suspend fun getAssignmentPolicy(token: String): AssignmentPolicyDto {
+        val response = httpClient.get("$baseUrl/api/tasks/assignment-policy/") {
+            header(HttpHeaders.Authorization, token)
+        }
+        handleErrors(response.status)
+        return response.body()
+    }
+
+    suspend fun getRecipients(token: String): List<RecipientDto> {
+        val response = httpClient.get("$baseUrl/api/tasks/recipients/") {
+            header(HttpHeaders.Authorization, token)
+        }
+        handleErrors(response.status)
+        return response.body()
+    }
+
+    suspend fun createTaskIndividual(
+        token: String,
+        dto: CreateTaskIndividualDto
+    ): CreateTaskResponseDto {
+        val response = httpClient.post("$baseUrl/api/tasks/") {
+            header(HttpHeaders.Authorization, token)
+            contentType(ContentType.Application.Json)
+            setBody(dto)
+        }
+        handleErrors(response.status)
+        return response.body()
+    }
+
+    suspend fun createTaskGroup(
+        token: String,
+        dto: CreateTaskGroupDto
+    ): CreateTaskResponseDto {
+        val response = httpClient.post("$baseUrl/api/tasks/") {
+            header(HttpHeaders.Authorization, token)
+            contentType(ContentType.Application.Json)
+            setBody(dto)
+        }
         handleErrors(response.status)
         return response.body()
     }

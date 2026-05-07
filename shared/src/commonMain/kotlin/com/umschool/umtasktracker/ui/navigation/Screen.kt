@@ -7,4 +7,5 @@ sealed class Screen(val route: String) {
     data object Home : Screen("home/{roleType}") {
         fun createRoute(role: String) = "home/$role"
     }
+    data object CreateTask : Screen("create_task")
 }
