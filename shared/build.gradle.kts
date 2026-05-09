@@ -51,6 +51,8 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
+
+            implementation(libs.androidx.material.icons.extended)
         }
 
         androidMain.dependencies {

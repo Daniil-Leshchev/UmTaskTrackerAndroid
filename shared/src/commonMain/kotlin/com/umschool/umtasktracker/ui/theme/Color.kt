@@ -14,3 +14,9 @@ val CardBackground = Color(0xFFF8FAFC)
 val TextDark = Color(0xFF3A3B3C)
 val TextHint = Color(0x73000000)
 val LinkCyan = Color(0xFF3FBED1)
+
+val CardBorder = Color(0xFFE5E5E5)
+val SuccessColor = Color(0xFF1BC47D)
+
+val ProgressColor = Color(0xFF39C2DA)
+val ProgressTrack = Color(0xFFEDEDED)
