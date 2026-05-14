@@ -42,6 +42,7 @@ import com.umschool.umtasktracker.ui.theme.CardBackground
 
 @Composable
 fun CuratorTasksScreen(
+    onTaskClick: (String) -> Unit,
     viewModel: CuratorTasksViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -125,7 +126,12 @@ fun CuratorTasksScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(uiState.filteredTasks) { task ->
-                    CuratorTaskItem(task = task)
+                    CuratorTaskItem(
+                        task = task,
+                        onClick = {
+                            onTaskClick(task.id)
+                        }
+                    )
                 }
             }
         }

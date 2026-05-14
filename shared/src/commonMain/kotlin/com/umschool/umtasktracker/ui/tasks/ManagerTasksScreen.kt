@@ -39,7 +39,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.ui.unit.sp
 import com.umschool.umtasktracker.presentation.manager.ManagerTaskFilter
 import com.umschool.umtasktracker.presentation.manager.ManagerTasksViewModel
 import com.umschool.umtasktracker.presentation.manager.toStatusBarState
@@ -49,6 +48,7 @@ import com.umschool.umtasktracker.ui.theme.CardBackground
 @Composable
 fun ManagerTasksScreen(
     onCreateTask: () -> Unit = {},
+    onTaskClick: (String) -> Unit = {},
     viewModel: ManagerTasksViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -151,7 +151,12 @@ fun ManagerTasksScreen(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(uiState.filteredTasks) { task ->
-                        ManagerTaskItem(task = task)
+                        ManagerTaskItem(
+                            task = task,
+                            onClick = {
+                                onTaskClick(task.id)
+                            }
+                        )
                     }
                 }
             }

@@ -23,12 +23,20 @@ import androidx.compose.ui.unit.dp
 import com.umschool.umtasktracker.domain.model.CuratorTask
 import com.umschool.umtasktracker.domain.model.TaskStatus
 import com.umschool.umtasktracker.presentation.util.DateFormatter
+import androidx.compose.foundation.clickable
 
 @Composable
-fun CuratorTaskItem(task: CuratorTask) {
+fun CuratorTaskItem(
+    task: CuratorTask,
+    onClick: () -> Unit = {}
+) {
     Card(
         shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.padding(vertical = 2.dp),
+        modifier = Modifier
+            .padding(vertical = 2.dp)
+            .clickable {
+                onClick()
+                },
         border = BorderStroke(0.3.dp, Color.LightGray)
     )
         {

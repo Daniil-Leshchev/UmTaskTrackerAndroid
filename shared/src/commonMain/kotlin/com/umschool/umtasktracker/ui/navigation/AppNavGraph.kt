@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import com.umschool.umtasktracker.data.local.TokenStorage
 import com.umschool.umtasktracker.domain.model.UserRole
 import com.umschool.umtasktracker.domain.repository.AuthRepository
+import com.umschool.umtasktracker.presentation.manager.ManagerTasksViewModel
 import com.umschool.umtasktracker.ui.auth.LoginScreen
 import com.umschool.umtasktracker.ui.auth.NotApprovedScreen
 import com.umschool.umtasktracker.ui.auth.RegisterScreen
@@ -18,6 +19,10 @@ import com.umschool.umtasktracker.ui.tasks.CuratorTasksScreen
 import com.umschool.umtasktracker.ui.tasks.ManagerTasksScreen
 import kotlinx.coroutines.flow.firstOrNull
 import org.koin.compose.koinInject
+import com.umschool.umtasktracker.ui.tasks.DetailedTaskScreen
+import org.koin.compose.viewmodel.koinViewModel
+import com.umschool.umtasktracker.presentation.curator.CuratorTasksViewModel
+import com.umschool.umtasktracker.ui.tasks.DetailedCuratorTaskScreen
 
 @Composable
 fun AppNavGraph() {
@@ -116,12 +121,23 @@ fun AppNavGraph() {
 
             when (roleType) {
                 "manager" -> ManagerTasksScreen(
-                    onCreateTask = { navController.navigate(Screen.CreateTask.route) }
+                    onCreateTask = { navController.navigate(Screen.CreateTask.route) },
+                    onTaskClick = { taskId ->
+                        navController.navigate(Screen.ManagerTaskDetails.createRoute(taskId))
+                    }
                 )
+
                 "admin" -> ManagerTasksScreen(
-                    onCreateTask = { navController.navigate(Screen.CreateTask.route) }
+                    onCreateTask = { navController.navigate(Screen.CreateTask.route) },
+                    onTaskClick = { taskId ->
+                        navController.navigate(Screen.ManagerTaskDetails.createRoute(taskId))
+                    }
                 )
-                "curator" -> CuratorTasksScreen()
+                "curator" -> CuratorTasksScreen(
+                    onTaskClick = { taskId ->
+                        navController.navigate(Screen.CuratorTaskDetails.createRoute(taskId))
+                    }
+                )
                 else -> Text("Unknown role")
             }
         }
@@ -131,6 +147,78 @@ fun AppNavGraph() {
                 onTaskCreated = { navController.popBackStack() },
                 onCancel = { navController.popBackStack() }
             )
+        }
+
+        composable(
+            route = Screen.ManagerTaskDetails.route,
+            arguments = listOf(
+                navArgument("taskId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+
+            val taskId =
+                backStackEntry.arguments?.getString("taskId")
+                    ?: return@composable
+
+            val homeEntry = try {
+                navController.getBackStackEntry(
+                    Screen.Home.createRoute("manager")
+                )
+            } catch (_: Exception) {
+                navController.getBackStackEntry(
+                    Screen.Home.createRoute("admin")
+                )
+            }
+
+            val viewModel: ManagerTasksViewModel =
+                koinViewModel(viewModelStoreOwner = homeEntry)
+
+            val task = viewModel.getTaskById(taskId)
+
+            if (task != null) {
+
+                DetailedTaskScreen(
+                    task = task,
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+        }
+
+        composable(
+            route = Screen.CuratorTaskDetails.route,
+            arguments = listOf(
+                navArgument("taskId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+
+            val taskId =
+                backStackEntry.arguments?.getString("taskId")
+                    ?: return@composable
+
+            val homeEntry = navController.getBackStackEntry(
+                Screen.Home.createRoute("curator")
+            )
+
+            val viewModel: CuratorTasksViewModel =
+                koinViewModel(viewModelStoreOwner = homeEntry)
+
+            val task = viewModel.getTaskById(taskId)
+
+            if (task != null) {
+
+                DetailedCuratorTaskScreen(
+                    task = task,
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
     }
 }

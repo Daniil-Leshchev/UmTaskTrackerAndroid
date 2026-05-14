@@ -3,6 +3,7 @@ package com.umschool.umtasktracker.presentation.curator
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.umschool.umtasktracker.domain.model.CuratorTask
+import com.umschool.umtasktracker.domain.model.ManagerTask
 import com.umschool.umtasktracker.domain.model.TaskStatus
 import com.umschool.umtasktracker.domain.usecase.GetCuratorTasksUseCase
 import com.umschool.umtasktracker.ui.tasks.components.TaskStatusBarState
@@ -38,6 +39,10 @@ class CuratorTasksViewModel(
                     )
                 }
         }
+    }
+
+    fun getTaskById(taskId: String): CuratorTask? {
+        return uiState.value.tasks.find { it.id == taskId }
     }
 
     fun onSearchChange(query: String) {

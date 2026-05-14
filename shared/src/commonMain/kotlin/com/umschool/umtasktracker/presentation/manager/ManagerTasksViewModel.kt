@@ -41,6 +41,10 @@ class ManagerTasksViewModel(
         }
     }
 
+    fun getTaskById(taskId: String): ManagerTask? {
+        return uiState.value.tasks.find { it.id == taskId }
+    }
+
     fun onSearchChange(query: String) {
         _uiState.value = _uiState.value.copy(searchQuery = query)
     }

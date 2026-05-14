@@ -38,10 +38,13 @@ import com.umschool.umtasktracker.ui.theme.ProgressColor
 import com.umschool.umtasktracker.ui.theme.ProgressTrack
 import com.umschool.umtasktracker.ui.theme.SuccessColor
 import com.umschool.umtasktracker.ui.theme.TextDark
+import androidx.compose.foundation.clickable
 
 
 @Composable
-fun ManagerTaskItem(task: ManagerTask) {
+fun ManagerTaskItem(task: ManagerTask,
+                    onClick: () -> Unit = {}
+) {
 
     val progress = (task.progress.toFloat() / 100f)
         .coerceIn(0f, 1f)
@@ -50,6 +53,9 @@ fun ManagerTaskItem(task: ManagerTask) {
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 8.dp)
             .fillMaxWidth()
+            .clickable {
+                onClick()
+            }
             .border(
                 width = 1.dp,
                 color = CardBorder,
