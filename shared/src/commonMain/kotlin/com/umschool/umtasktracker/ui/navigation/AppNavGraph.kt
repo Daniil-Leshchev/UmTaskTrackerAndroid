@@ -5,6 +5,7 @@ import androidx.compose.runtime.*
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.umschool.umtasktracker.data.local.TokenStorage
@@ -14,6 +15,7 @@ import com.umschool.umtasktracker.presentation.manager.ManagerTasksViewModel
 import com.umschool.umtasktracker.ui.auth.LoginScreen
 import com.umschool.umtasktracker.ui.auth.NotApprovedScreen
 import com.umschool.umtasktracker.ui.auth.RegisterScreen
+import com.umschool.umtasktracker.ui.tasks.CreateTaskAssignmentScreen
 import com.umschool.umtasktracker.ui.tasks.CreateTaskScreen
 import com.umschool.umtasktracker.ui.tasks.CuratorTasksScreen
 import com.umschool.umtasktracker.ui.tasks.ManagerTasksScreen
@@ -121,14 +123,14 @@ fun AppNavGraph() {
 
             when (roleType) {
                 "manager" -> ManagerTasksScreen(
-                    onCreateTask = { navController.navigate(Screen.CreateTask.route) },
+                    onCreateTask = { navController.navigate(Screen.CreateTaskFlow.route) },
                     onTaskClick = { taskId ->
                         navController.navigate(Screen.ManagerTaskDetails.createRoute(taskId))
                     }
                 )
 
                 "admin" -> ManagerTasksScreen(
-                    onCreateTask = { navController.navigate(Screen.CreateTask.route) },
+                    onCreateTask = { navController.navigate(Screen.CreateTaskFlow.route) },
                     onTaskClick = { taskId ->
                         navController.navigate(Screen.ManagerTaskDetails.createRoute(taskId))
                     }
@@ -142,11 +144,36 @@ fun AppNavGraph() {
             }
         }
 
-        composable(Screen.CreateTask.route) {
-            CreateTaskScreen(
-                onTaskCreated = { navController.popBackStack() },
-                onCancel = { navController.popBackStack() }
-            )
+        navigation(
+            startDestination = Screen.CreateTaskMain.route,
+            route = Screen.CreateTaskFlow.route
+        ) {
+            composable(Screen.CreateTaskMain.route) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Screen.CreateTaskFlow.route)
+                }
+                CreateTaskScreen(
+                    viewModelStoreOwner = parentEntry,
+                    onCancel = {
+                        navController.popBackStack(Screen.CreateTaskFlow.route, inclusive = true)
+                    },
+                    onNavigateToAssignment = {
+                        navController.navigate(Screen.CreateTaskAssignment.route)
+                    }
+                )
+            }
+            composable(Screen.CreateTaskAssignment.route) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Screen.CreateTaskFlow.route)
+                }
+                CreateTaskAssignmentScreen(
+                    viewModelStoreOwner = parentEntry,
+                    onBack = { navController.popBackStack() },
+                    onTaskCreated = {
+                        navController.popBackStack(Screen.CreateTaskFlow.route, inclusive = true)
+                    }
+                )
+            }
         }
 
         composable(

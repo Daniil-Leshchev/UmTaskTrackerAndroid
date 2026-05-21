@@ -13,6 +13,7 @@ import com.umschool.umtasktracker.domain.repository.CuratorRepository
 import com.umschool.umtasktracker.domain.repository.ManagerRepository
 import com.umschool.umtasktracker.domain.usecase.CreateTaskUseCase
 import com.umschool.umtasktracker.domain.usecase.GetAssignmentPolicyUseCase
+import com.umschool.umtasktracker.domain.usecase.GetCurrentUserUseCase
 import com.umschool.umtasktracker.domain.usecase.GetCuratorTasksUseCase
 import com.umschool.umtasktracker.domain.usecase.GetManagerTasksUseCase
 import com.umschool.umtasktracker.domain.usecase.GetRecipientsUseCase
@@ -47,10 +48,11 @@ fun commonModule(baseUrl: String, isDebug: Boolean) = module {
     factory { GetAssignmentPolicyUseCase(get()) }
     factory { GetRecipientsUseCase(get()) }
     factory { CreateTaskUseCase(get()) }
+    factory { GetCurrentUserUseCase(get()) }
 
     viewModel { LoginViewModel(get()) }
     viewModel { RegisterViewModel(get(), get(), get()) }
     viewModel { CuratorTasksViewModel(get()) }
     viewModel { ManagerTasksViewModel(get()) }
-    viewModel { CreateTaskViewModel(get(), get(), get()) }
+    viewModel { CreateTaskViewModel(get(), get(), get(), get(), get()) }
 }

@@ -10,6 +10,6 @@ data class UserProfileDto(
     val subject: String? = null,
     val department: String? = null,
     val role: String,
-    @SerialName("is_admin") val isAdmin: Boolean,
-    @SerialName("is_confirmed") val isApproved: Boolean
+    @SerialName("is_admin") val isAdmin: Boolean = false,
+    @SerialName("is_confirmed") val isApproved: Boolean = false
 )

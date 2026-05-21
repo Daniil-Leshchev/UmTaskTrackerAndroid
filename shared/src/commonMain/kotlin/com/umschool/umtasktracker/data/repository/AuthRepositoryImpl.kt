@@ -7,6 +7,7 @@ import com.umschool.umtasktracker.data.remote.dto.RegisterRequest
 import com.umschool.umtasktracker.domain.model.AuthToken
 import com.umschool.umtasktracker.domain.model.UserProfile
 import com.umschool.umtasktracker.domain.repository.AuthRepository
+import kotlinx.coroutines.flow.firstOrNull
 
 class AuthRepositoryImpl(
     private val apiService: AuthApiService,
@@ -21,6 +22,19 @@ class AuthRepositoryImpl(
 
     override suspend fun getProfile(accessToken: String): Result<UserProfile> = safeApiCall {
         val dto = apiService.getProfile(accessToken)
+        UserProfile(
+            email = dto.email,
+            name = "${dto.firstName} ${dto.lastName}".trim(),
+            isAdmin = dto.isAdmin,
+            roleName = dto.role,
+            isApproved = dto.isApproved
+        )
+    }
+
+    override suspend fun getCurrentUser(): Result<UserProfile> = safeApiCall {
+        val token = tokenStorage.getAccessToken().firstOrNull()
+        require(!token.isNullOrBlank()) { "Token is null" }
+        val dto = apiService.getProfile(token)
         UserProfile(
             email = dto.email,
             name = "${dto.firstName} ${dto.lastName}".trim(),

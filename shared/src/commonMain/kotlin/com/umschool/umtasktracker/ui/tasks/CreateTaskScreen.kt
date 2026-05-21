@@ -11,26 +11,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -48,19 +40,19 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.umschool.umtasktracker.domain.model.Recipient
+import androidx.lifecycle.ViewModelStoreOwner
+import com.umschool.umtasktracker.presentation.manager.CreateTaskUiState
 import com.umschool.umtasktracker.presentation.manager.CreateTaskViewModel
 import com.umschool.umtasktracker.presentation.util.DateFormatter
 import com.umschool.umtasktracker.ui.theme.CardBackground
@@ -68,7 +60,6 @@ import com.umschool.umtasktracker.ui.theme.ErrorRed
 import com.umschool.umtasktracker.ui.theme.TextDark
 import com.umschool.umtasktracker.ui.theme.TextHint
 import com.umschool.umtasktracker.ui.theme.UmOrange
-import com.umschool.umtasktracker.ui.theme.avatarColor
 import org.koin.compose.viewmodel.koinViewModel
 
 private val SuccessGreen = Color(0xFF22C55E)
@@ -76,45 +67,30 @@ private val FieldBorder = Color(0xFFE2E5EA)
 
 @Composable
 fun CreateTaskScreen(
-    onTaskCreated: () -> Unit,
+    viewModelStoreOwner: ViewModelStoreOwner,
     onCancel: () -> Unit,
-    viewModel: CreateTaskViewModel = koinViewModel()
+    onNavigateToAssignment: () -> Unit
 ) {
+    val viewModel: CreateTaskViewModel = koinViewModel(viewModelStoreOwner = viewModelStoreOwner)
     val uiState by viewModel.uiState.collectAsState()
-
-    LaunchedEffect(uiState.submitSuccess) {
-        if (uiState.submitSuccess != null) onTaskCreated()
-    }
 
     Scaffold(containerColor = CardBackground) { padding ->
         when {
             uiState.isLoadingInit -> LoadingState(padding)
             uiState.error != null && uiState.policy == null ->
                 ErrorState(padding, uiState.error ?: "")
-            else -> CreateTaskContent(
+            else -> StepContent(
                 padding = padding,
-                taskName = uiState.taskName,
-                description = uiState.description,
-                deadlineDateMillis = uiState.deadlineDateMillis,
-                deadlineHour = uiState.deadlineHour,
-                deadlineMinute = uiState.deadlineMinute,
-                reportFormat = uiState.reportFormat,
-                searchQuery = uiState.searchQuery,
-                filteredRecipients = uiState.filteredRecipients,
-                selectedRecipients = uiState.selectedRecipients,
-                isSubmitting = uiState.isSubmitting,
-                validationError = uiState.validationError,
-                submitError = uiState.error,
+                uiState = uiState,
                 onTaskNameChange = viewModel::onTaskNameChange,
                 onDescriptionChange = viewModel::onDescriptionChange,
                 onDeadlineDateChange = viewModel::onDeadlineDateChange,
                 onDeadlineTimeChange = viewModel::onDeadlineTimeChange,
                 onReportFormatChange = viewModel::onReportFormatChange,
-                onSearchQueryChange = viewModel::onSearchQueryChange,
-                onToggleRecipient = viewModel::toggleRecipient,
-                onRemoveRecipient = viewModel::removeRecipient,
-                onSubmit = viewModel::submitTask,
-                onCancel = onCancel
+                onCancel = onCancel,
+                onNext = {
+                    if (viewModel.validateStep1()) onNavigateToAssignment()
+                }
             )
         }
     }
@@ -141,38 +117,18 @@ private fun ErrorState(padding: PaddingValues, message: String) {
 }
 
 @Composable
-private fun CreateTaskContent(
+private fun StepContent(
     padding: PaddingValues,
-    taskName: String,
-    description: String,
-    deadlineDateMillis: Long?,
-    deadlineHour: Int?,
-    deadlineMinute: Int?,
-    reportFormat: String,
-    searchQuery: String,
-    filteredRecipients: List<Recipient>,
-    selectedRecipients: List<Recipient>,
-    isSubmitting: Boolean,
-    validationError: String?,
-    submitError: String?,
+    uiState: CreateTaskUiState,
     onTaskNameChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     onDeadlineDateChange: (Long?) -> Unit,
     onDeadlineTimeChange: (Int, Int) -> Unit,
     onReportFormatChange: (String) -> Unit,
-    onSearchQueryChange: (String) -> Unit,
-    onToggleRecipient: (Recipient) -> Unit,
-    onRemoveRecipient: (String) -> Unit,
-    onSubmit: () -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    onNext: () -> Unit
 ) {
     val scrollState = rememberScrollState()
-
-    LaunchedEffect(searchQuery) {
-        if (searchQuery.isNotBlank()) {
-            scrollState.animateScrollTo(scrollState.maxValue)
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -189,7 +145,7 @@ private fun CreateTaskContent(
 
         LabeledField(label = "Название задачи") {
             AppTextField(
-                value = taskName,
+                value = uiState.taskName,
                 onValueChange = onTaskNameChange,
                 placeholder = "Введите название задачи"
             )
@@ -199,7 +155,7 @@ private fun CreateTaskContent(
 
         LabeledField(label = "Описание задачи") {
             AppTextField(
-                value = description,
+                value = uiState.description,
                 onValueChange = onDescriptionChange,
                 placeholder = "Опишите детали задачи",
                 singleLine = false,
@@ -211,9 +167,9 @@ private fun CreateTaskContent(
 
         LabeledField(label = "Дедлайн (МСК)") {
             DeadlinePickerField(
-                deadlineDateMillis = deadlineDateMillis,
-                deadlineHour = deadlineHour,
-                deadlineMinute = deadlineMinute,
+                deadlineDateMillis = uiState.deadlineDateMillis,
+                deadlineHour = uiState.deadlineHour,
+                deadlineMinute = uiState.deadlineMinute,
                 onDateChange = onDeadlineDateChange,
                 onTimeChange = onDeadlineTimeChange
             )
@@ -223,68 +179,45 @@ private fun CreateTaskContent(
 
         LabeledField(label = "Форма отчета") {
             AppTextField(
-                value = reportFormat,
+                value = uiState.reportFormat,
                 onValueChange = onReportFormatChange,
                 placeholder = "Введите требуемый формат отчета"
             )
         }
 
-        Spacer(Modifier.height(12.dp))
-
-        LabeledField(label = "Исполнитель") {
-            RecipientSearchSection(
-                query = searchQuery,
-                filteredRecipients = filteredRecipients,
-                selectedRecipients = selectedRecipients,
-                onQueryChange = onSearchQueryChange,
-                onToggle = onToggleRecipient,
-                onRemove = onRemoveRecipient
+        if (uiState.validationError != null) {
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = uiState.validationError,
+                color = ErrorRed,
+                style = MaterialTheme.typography.bodySmall
             )
         }
 
-        if (validationError != null) {
-            Spacer(Modifier.height(10.dp))
-            Text(text = validationError, color = ErrorRed, style = MaterialTheme.typography.bodySmall)
-        }
-        if (submitError != null) {
-            Spacer(Modifier.height(10.dp))
-            Text(text = submitError, color = ErrorRed, style = MaterialTheme.typography.bodySmall)
-        }
-
-        Spacer(Modifier.height(18.dp))
+        Spacer(Modifier.height(20.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.End
         ) {
             OutlinedButton(
                 onClick = onCancel,
                 modifier = Modifier.width(110.dp),
-                shape = RoundedCornerShape(8.dp),
-                enabled = !isSubmitting
+                shape = RoundedCornerShape(8.dp)
             ) {
                 Text("Отмена", color = TextDark)
             }
             Spacer(Modifier.width(12.dp))
             Button(
-                onClick = onSubmit,
+                onClick = onNext,
                 modifier = Modifier.width(120.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = SuccessGreen,
                     contentColor = Color.White
-                ),
-                enabled = !isSubmitting
+                )
             ) {
-                if (isSubmitting) {
-                    CircularProgressIndicator(
-                        color = Color.White,
-                        strokeWidth = 2.dp,
-                        modifier = Modifier.size(18.dp)
-                    )
-                } else {
-                    Text("Создать")
-                }
+                Text("Далее")
             }
         }
 
@@ -456,133 +389,6 @@ private fun FieldActionButton(icon: ImageVector, onClick: () -> Unit) {
             tint = Color.White,
             modifier = Modifier.size(18.dp)
         )
-    }
-}
-
-@Composable
-private fun RecipientSearchSection(
-    query: String,
-    filteredRecipients: List<Recipient>,
-    selectedRecipients: List<Recipient>,
-    onQueryChange: (String) -> Unit,
-    onToggle: (Recipient) -> Unit,
-    onRemove: (String) -> Unit
-) {
-    Column {
-        OutlinedTextField(
-            value = query,
-            onValueChange = onQueryChange,
-            placeholder = { Text("Введите фамилию куратора", color = TextHint) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            shape = RoundedCornerShape(8.dp),
-            trailingIcon = {
-                FieldActionButton(icon = Icons.Default.Search, onClick = {})
-            },
-            colors = fieldColors()
-        )
-
-        if (selectedRecipients.isNotEmpty()) {
-            Spacer(Modifier.height(8.dp))
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                selectedRecipients.forEach { r ->
-                    SelectedRecipientChip(recipient = r, onRemove = { onRemove(r.email) })
-                }
-            }
-        }
-
-        if (query.isNotBlank()) {
-            Spacer(Modifier.height(8.dp))
-            Card(
-                shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                if (filteredRecipients.isEmpty()) {
-                    Text(
-                        text = "Никого не найдено",
-                        color = TextHint,
-                        modifier = Modifier.padding(12.dp)
-                    )
-                } else {
-                    LazyColumn(modifier = Modifier.heightIn(max = 220.dp)) {
-                        items(filteredRecipients) { r ->
-                            val isSelected = selectedRecipients.any { it.email == r.email }
-                            RecipientSearchResultItem(
-                                recipient = r,
-                                isSelected = isSelected,
-                                onClick = { onToggle(r) }
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SelectedRecipientChip(recipient: Recipient, onRemove: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .background(avatarColor(recipient.email), RoundedCornerShape(50))
-            .clickable { onRemove() }
-            .padding(start = 12.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = shortName(recipient.name),
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.White,
-            fontWeight = FontWeight.Medium
-        )
-        Spacer(Modifier.width(6.dp))
-        Icon(
-            imageVector = Icons.Default.Close,
-            contentDescription = "Убрать",
-            tint = Color.White.copy(alpha = 0.85f),
-            modifier = Modifier.size(14.dp)
-        )
-    }
-}
-
-private fun shortName(fullName: String): String {
-    val parts = fullName.trim().split(' ').filter { it.isNotBlank() }
-    return when (parts.size) {
-        0 -> ""
-        1 -> parts[0]
-        else -> "${parts[0]} ${parts[1]}"
-    }
-}
-
-@Composable
-private fun RecipientSearchResultItem(
-    recipient: Recipient,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .background(if (isSelected) UmOrange.copy(alpha = 0.08f) else Color.Transparent)
-            .padding(horizontal = 12.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = shortName(recipient.name),
-            style = MaterialTheme.typography.bodyMedium,
-            color = TextDark,
-            modifier = Modifier.weight(1f)
-        )
-        if (isSelected) {
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = "Выбран",
-                tint = UmOrange,
-                modifier = Modifier.size(20.dp)
-            )
-        }
     }
 }
 

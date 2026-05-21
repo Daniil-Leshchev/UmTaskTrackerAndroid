@@ -7,7 +7,9 @@ sealed class Screen(val route: String) {
     data object Home : Screen("home/{roleType}") {
         fun createRoute(role: String) = "home/$role"
     }
-    data object CreateTask : Screen("create_task")
+    data object CreateTaskFlow : Screen("create_task_flow")
+    data object CreateTaskMain : Screen("create_task_main")
+    data object CreateTaskAssignment : Screen("create_task_assignment")
     data object ManagerTaskDetails :
         Screen("manager_task_details/{taskId}") {
 
