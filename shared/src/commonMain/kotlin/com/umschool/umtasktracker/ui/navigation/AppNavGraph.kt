@@ -208,6 +208,7 @@ fun AppNavGraph() {
 
                 DetailedTaskScreen(
                     task = task,
+                    viewModel = viewModel,
                     onBack = {
                         navController.popBackStack()
                     }

@@ -10,6 +10,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,14 +21,36 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.umschool.umtasktracker.ui.theme.CardBackground
 import com.umschool.umtasktracker.domain.model.ManagerTask
+import com.umschool.umtasktracker.presentation.manager.ManagerTasksViewModel
 import com.umschool.umtasktracker.presentation.util.DateFormatter
 import com.umschool.umtasktracker.ui.theme.ProgressColor
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 @Composable
 fun DetailedTaskScreen(
     task: ManagerTask,
+    viewModel: ManagerTasksViewModel,
     onBack: () -> Unit
 ) {
+
+    val uiState = viewModel.uiState.collectAsState()
+
+    LaunchedEffect(task.id) {
+        viewModel.loadTaskDetails(task.id)
+    }
+
+    val curators = uiState.value.taskDetails
+
+    var searchQuery by remember {
+        mutableStateOf("")
+    }
+
+    val filteredCurators = curators.filter {
+        it.name.contains(searchQuery, ignoreCase = true)
+    }
 
     Scaffold(
         containerColor = CardBackground
@@ -178,8 +202,10 @@ fun DetailedTaskScreen(
                         Spacer(modifier = Modifier.height(16.dp))
 
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
+                            value = searchQuery,
+                            onValueChange = {
+                                searchQuery = it
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             placeholder = {
                                 Text("Введите фамилию куратора")
@@ -199,7 +225,7 @@ fun DetailedTaskScreen(
                         Spacer(modifier = Modifier.height(24.dp))
                     }
 
-                    items(task.sampleCurators) { curator ->
+                    items(filteredCurators) { curator ->
 
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -231,7 +257,7 @@ fun DetailedTaskScreen(
                                 ) {
 
                                     Text(
-                                        text = curator,
+                                        text = curator.name,
                                         fontSize = 20.sp
                                     )
 
@@ -243,7 +269,7 @@ fun DetailedTaskScreen(
                                         color = Color.Transparent
                                     ) {
                                         Text(
-                                            text = "Не начато",
+                                            text = curator.status.label,
                                             modifier = Modifier.padding(
                                                 horizontal = 10.dp,
                                                 vertical = 4.dp
