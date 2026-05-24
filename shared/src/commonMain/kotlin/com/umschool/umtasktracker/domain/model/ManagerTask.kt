@@ -7,7 +7,7 @@ data class ManagerTask(
     val report: String,
     val deadline: String,
     val created: String,
-    val status: TaskStatus,
+    val status: ManagerTaskStatus,
     val progress: Number,
     val completed: Number,
     val total: Number,
@@ -17,3 +17,17 @@ data class ManagerTask(
     val not_on_time: Number?
 )
 
+enum class ManagerTaskStatus(val label: String) {
+    NOT_STARTED("Не начато"),
+    IN_PROGRESS("В процессе"),
+    COMPLETED("Завершено");
+
+    companion object {
+        fun fromString(value: String): ManagerTaskStatus = when (value.lowercase()) {
+            "не начато" -> NOT_STARTED
+            "в процессе" -> IN_PROGRESS
+            "завершено" -> COMPLETED
+            else -> NOT_STARTED
+        }
+    }
+}

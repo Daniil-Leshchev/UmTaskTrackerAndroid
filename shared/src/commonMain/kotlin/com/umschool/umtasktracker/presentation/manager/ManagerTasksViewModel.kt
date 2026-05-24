@@ -3,15 +3,18 @@ package com.umschool.umtasktracker.presentation.manager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.umschool.umtasktracker.domain.model.ManagerTask
-import com.umschool.umtasktracker.domain.model.TaskStatus
+import com.umschool.umtasktracker.domain.model.ManagerTaskStatus
+import com.umschool.umtasktracker.domain.model.TaskDetail
 import com.umschool.umtasktracker.domain.usecase.GetManagerTasksUseCase
+import com.umschool.umtasktracker.domain.usecase.GetTaskDetailsUseCase
 import com.umschool.umtasktracker.ui.tasks.components.TaskStatusBarState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class ManagerTasksViewModel(
-    private val getManagerTasks: GetManagerTasksUseCase
+    private val getManagerTasks: GetManagerTasksUseCase,
+    private val getTaskDetails: GetTaskDetailsUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ManagerTasksUiState())
@@ -22,7 +25,10 @@ class ManagerTasksViewModel(
     }
 
     fun loadTasks() {
-        _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+        _uiState.value = _uiState.value.copy(
+            isLoading = true,
+            error = null
+        )
 
         viewModelScope.launch {
             getManagerTasks()
@@ -41,22 +47,56 @@ class ManagerTasksViewModel(
         }
     }
 
+    fun loadTaskDetails(taskId: String) {
+
+        _uiState.value = _uiState.value.copy(
+            isDetailsLoading = true
+        )
+
+        viewModelScope.launch {
+
+            getTaskDetails(taskId)
+                .onSuccess { details ->
+
+                    _uiState.value = _uiState.value.copy(
+                        taskDetails = details,
+                        isDetailsLoading = false
+                    )
+                }
+                .onFailure { e ->
+
+                    _uiState.value = _uiState.value.copy(
+                        isDetailsLoading = false,
+                        error = e.message ?: "Ошибка загрузки деталей задачи"
+                    )
+                }
+        }
+    }
+
     fun getTaskById(taskId: String): ManagerTask? {
         return uiState.value.tasks.find { it.id == taskId }
     }
 
     fun onSearchChange(query: String) {
-        _uiState.value = _uiState.value.copy(searchQuery = query)
+        _uiState.value = _uiState.value.copy(
+            searchQuery = query
+        )
     }
 
     fun onFilterSelected(filter: ManagerTaskFilter) {
-        _uiState.value = _uiState.value.copy(selectedFilter = filter)
+        _uiState.value = _uiState.value.copy(
+            selectedFilter = filter
+        )
     }
 }
 
 data class ManagerTasksUiState(
     val tasks: List<ManagerTask> = emptyList(),
+    val taskDetails: List<TaskDetail> = emptyList(),
+
     val isLoading: Boolean = false,
+    val isDetailsLoading: Boolean = false,
+
     val error: String? = null,
 
     val searchQuery: String = "",
@@ -67,25 +107,23 @@ data class ManagerTasksUiState(
         get() = tasks
             .filter { task ->
                 when (selectedFilter) {
+
                     ManagerTaskFilter.ALL -> true
 
                     ManagerTaskFilter.COMPLETED ->
-                        task.status == TaskStatus.COMPLETED ||
-                                task.status == TaskStatus.COMPLETED_LATE
+                        task.status == ManagerTaskStatus.COMPLETED
 
                     ManagerTaskFilter.IN_PROGRESS ->
-                        task.status == TaskStatus.IN_PROGRESS
+                        task.status == ManagerTaskStatus.IN_PROGRESS
 
-                    ManagerTaskFilter.OVERDUE ->
-                        task.status == TaskStatus.OVERDUE
-
-                    ManagerTaskFilter.COMPLETED_ON_TIME ->
-                        task.status == TaskStatus.COMPLETED
+                    ManagerTaskFilter.NOT_STARTED ->
+                        task.status == ManagerTaskStatus.NOT_STARTED
                 }
             }
             .filter {
                 it.title.contains(searchQuery, ignoreCase = true)
             }
+
     val completedTasks
         get() = tasks.sumOf { (it.completed).toInt() }
 
@@ -95,19 +133,34 @@ data class ManagerTasksUiState(
         }
 
     val overdueTasks
-        get() = tasks.count { it.status == TaskStatus.OVERDUE }
+        get() = tasks.count {
+            it.status == ManagerTaskStatus.NOT_STARTED
+        }
 
     val successPercent: Int
         get() {
-            val total = tasks.sumOf { (it.total).toInt() }
-            val onTime = tasks.sumOf { (it.on_time ?: 0).toInt() }
 
-            return if (total == 0) 0 else (onTime * 100) / total
+            val total = tasks.sumOf {
+                (it.total).toInt()
+            }
+
+            val onTime = tasks.sumOf {
+                (it.on_time ?: 0).toInt()
+            }
+
+            return if (total == 0) {
+                0
+            } else {
+                (onTime * 100) / total
+            }
         }
 }
 
 enum class ManagerTaskFilter {
-    ALL, COMPLETED, IN_PROGRESS, OVERDUE, COMPLETED_ON_TIME
+    ALL,
+    COMPLETED,
+    IN_PROGRESS,
+    NOT_STARTED
 }
 
 fun ManagerTasksUiState.toStatusBarState() = TaskStatusBarState(

@@ -7,6 +7,7 @@ import com.umschool.umtasktracker.data.remote.dto.CreateTaskResponseDto
 import com.umschool.umtasktracker.data.remote.dto.FetchTasksParams
 import com.umschool.umtasktracker.data.remote.dto.ManagerTaskDto
 import com.umschool.umtasktracker.data.remote.dto.RecipientDto
+import com.umschool.umtasktracker.data.remote.dto.TaskDetailDto
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -86,6 +87,20 @@ class ManagerApiService(
             setBody(dto)
         }
         handleErrors(response.status)
+        return response.body()
+    }
+
+    suspend fun getTaskDetails(
+        token: String,
+        taskId: String
+    ): List<TaskDetailDto> {
+
+        val response = httpClient.get("$baseUrl/api/tasks/$taskId/") {
+            header(HttpHeaders.Authorization, token)
+        }
+
+        handleErrors(response.status)
+
         return response.body()
     }
 

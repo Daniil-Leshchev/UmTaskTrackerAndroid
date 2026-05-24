@@ -9,11 +9,14 @@ import com.umschool.umtasktracker.data.remote.dto.CreateTaskResponseDto
 import com.umschool.umtasktracker.data.remote.dto.FetchTasksParams
 import com.umschool.umtasktracker.data.remote.dto.ManagerTaskDto
 import com.umschool.umtasktracker.data.remote.dto.RecipientDto
+import com.umschool.umtasktracker.data.remote.dto.TaskDetailDto
 import com.umschool.umtasktracker.domain.model.AssignmentPolicy
 import com.umschool.umtasktracker.domain.model.CreateTaskParams
 import com.umschool.umtasktracker.domain.model.CreateTaskResult
 import com.umschool.umtasktracker.domain.model.ManagerTask
+import com.umschool.umtasktracker.domain.model.ManagerTaskStatus
 import com.umschool.umtasktracker.domain.model.Recipient
+import com.umschool.umtasktracker.domain.model.TaskDetail
 import com.umschool.umtasktracker.domain.model.TaskStatus
 import com.umschool.umtasktracker.domain.repository.ManagerRepository
 import kotlinx.coroutines.flow.firstOrNull
@@ -52,6 +55,13 @@ class ManagerRepositoryImpl(
             response.toDomain()
         }
 
+    override suspend fun getTaskDetails(
+        taskId: String
+    ): Result<List<TaskDetail>> = safeApiCall {
+        api.getTaskDetails(authHeader(), taskId)
+            .map { it.toDomain() }
+    }
+
     private suspend fun authHeader(): String {
         val token = tokenStorage.getAccessToken().firstOrNull()
         require(!token.isNullOrBlank()) { "Token is null" }
@@ -66,7 +76,7 @@ private fun ManagerTaskDto.toDomain() = ManagerTask(
     report = report,
     deadline = deadline,
     created = created,
-    status = TaskStatus.fromString(status),
+    status = ManagerTaskStatus.fromString(status),
 
     progress = progress,
     completed = completed,
@@ -118,3 +128,15 @@ private fun CreateTaskParams.Group.toDto() = CreateTaskGroupDto(
     departmentIds = departmentIds,
     roleIds = roleIds
 )
+
+fun TaskDetailDto.toDomain(): TaskDetail {
+    return TaskDetail(
+        email = email,
+        name = name,
+        role = role,
+        status = TaskStatus.fromString(status),
+        completedAt = completedAt,
+        reportUrl = reportUrl,
+        reportText = reportText
+    )
+}
