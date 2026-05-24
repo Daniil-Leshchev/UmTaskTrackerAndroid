@@ -30,7 +30,7 @@ private fun CuratorTaskDto.toDomain() = CuratorTask(
     deadline = deadline,
     created = created,
     status = TaskStatus.fromString(status),
-    isCompleted = completedAt == true,
-    hasReport = reportText == true,
+    isCompleted = completedAt != null,
+    hasReport = reportText != null,
     reportUrl = reportUrl
 )

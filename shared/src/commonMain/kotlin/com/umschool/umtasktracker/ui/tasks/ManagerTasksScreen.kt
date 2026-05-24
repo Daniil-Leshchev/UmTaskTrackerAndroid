@@ -16,13 +16,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,6 +52,7 @@ import com.umschool.umtasktracker.presentation.manager.toStatusBarState
 import com.umschool.umtasktracker.ui.tasks.components.ManagerTaskItem
 import com.umschool.umtasktracker.ui.theme.CardBackground
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManagerTasksScreen(
     onCreateTask: () -> Unit = {},
@@ -52,6 +60,15 @@ fun ManagerTasksScreen(
     viewModel: ManagerTasksViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) viewModel.loadTasks()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     Scaffold(
         containerColor = CardBackground,
@@ -146,17 +163,32 @@ fun ManagerTasksScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(uiState.filteredTasks) { task ->
-                        ManagerTaskItem(
-                            task = task,
-                            onClick = {
-                                onTaskClick(task.id)
+                if (uiState.isLoading && uiState.tasks.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = UmOrange)
+                    }
+                } else {
+                    PullToRefreshBox(
+                        isRefreshing = uiState.isLoading,
+                        onRefresh = { viewModel.loadTasks() },
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(uiState.filteredTasks) { task ->
+                                ManagerTaskItem(
+                                    task = task,
+                                    onClick = {
+                                        onTaskClick(task.id)
+                                    }
+                                )
                             }
-                        )
+                        }
                     }
                 }
             }

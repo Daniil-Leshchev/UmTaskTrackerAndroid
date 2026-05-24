@@ -20,6 +20,7 @@ import com.umschool.umtasktracker.domain.usecase.GetRecipientsUseCase
 import com.umschool.umtasktracker.domain.usecase.LoadCatalogsUseCase
 import com.umschool.umtasktracker.domain.usecase.LoginUseCase
 import com.umschool.umtasktracker.domain.usecase.RegisterUseCase
+import com.umschool.umtasktracker.notifications.FcmTokenRegistrar
 import com.umschool.umtasktracker.presentation.auth.LoginViewModel
 import com.umschool.umtasktracker.presentation.auth.RegisterViewModel
 import com.umschool.umtasktracker.presentation.curator.CuratorTasksViewModel
@@ -40,6 +41,8 @@ fun commonModule(baseUrl: String, isDebug: Boolean) = module {
     single<CuratorRepository> { CuratorRepositoryImpl(get(), get()) }
     single<ManagerRepository> { ManagerRepositoryImpl(get(), get()) }
 
+    single { FcmTokenRegistrar(get()) }
+
     factory { LoginUseCase(get()) }
     factory { RegisterUseCase(get()) }
     factory { LoadCatalogsUseCase(get()) }
@@ -50,7 +53,7 @@ fun commonModule(baseUrl: String, isDebug: Boolean) = module {
     factory { CreateTaskUseCase(get()) }
     factory { GetCurrentUserUseCase(get()) }
 
-    viewModel { LoginViewModel(get()) }
+    viewModel { LoginViewModel(get(), get()) }
     viewModel { RegisterViewModel(get(), get(), get()) }
     viewModel { CuratorTasksViewModel(get()) }
     viewModel { ManagerTasksViewModel(get()) }

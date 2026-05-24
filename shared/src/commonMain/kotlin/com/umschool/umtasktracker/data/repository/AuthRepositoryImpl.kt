@@ -44,6 +44,22 @@ class AuthRepositoryImpl(
         )
     }
 
+    override suspend fun registerFcmToken(token: String): Result<Unit> {
+        val accessToken = tokenStorage.getAccessToken().firstOrNull()
+        if (accessToken.isNullOrBlank()) return Result.success(Unit)
+        return safeApiCall {
+            apiService.registerFcmToken(accessToken, token)
+        }
+    }
+
+    override suspend fun deleteFcmToken(): Result<Unit> {
+        val accessToken = tokenStorage.getAccessToken().firstOrNull()
+        if (accessToken.isNullOrBlank()) return Result.success(Unit)
+        return safeApiCall {
+            apiService.deleteFcmToken(accessToken)
+        }
+    }
+
     override suspend fun register(
         email: String,
         password: String,

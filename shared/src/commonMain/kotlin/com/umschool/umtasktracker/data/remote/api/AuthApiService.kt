@@ -1,6 +1,7 @@
 package com.umschool.umtasktracker.data.remote.api
 
 import com.umschool.umtasktracker.data.remote.dto.DepartmentDto
+import com.umschool.umtasktracker.data.remote.dto.FcmTokenRequest
 import com.umschool.umtasktracker.data.remote.dto.LoginRequest
 import com.umschool.umtasktracker.data.remote.dto.RegisterRequest
 import com.umschool.umtasktracker.data.remote.dto.RoleDto
@@ -68,6 +69,22 @@ class AuthApiService(
         val response = httpClient.get("$baseUrl/api/catalogs/departments/")
         handleErrors(response.status)
         return response.body()
+    }
+
+    suspend fun registerFcmToken(accessToken: String, token: String) {
+        val response = httpClient.post("$baseUrl/api/users/me/fcm-token/") {
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+            contentType(ContentType.Application.Json)
+            setBody(FcmTokenRequest(token))
+        }
+        handleErrors(response.status)
+    }
+
+    suspend fun deleteFcmToken(accessToken: String) {
+        val response = httpClient.delete("$baseUrl/api/users/me/fcm-token/delete/") {
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+        }
+        handleErrors(response.status)
     }
 
     private fun handleErrors(status: HttpStatusCode) {

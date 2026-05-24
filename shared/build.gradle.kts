@@ -52,13 +52,18 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
 
-            implementation(libs.androidx.material.icons.extended)
+            implementation(compose.materialIconsExtended)
         }
 
         androidMain.dependencies {
             implementation(libs.ktor.client.android)
             implementation(libs.androidx.security.crypto)
+            implementation(libs.androidx.activity.compose)
             implementation(libs.koin.android)
+
+            implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.messaging.ktx)
+            implementation(libs.kotlinx.coroutines.play.services)
         }
 
         iosMain.dependencies {

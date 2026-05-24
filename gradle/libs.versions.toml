@@ -24,6 +24,11 @@ lifecycleViewmodelCompose = "2.8.7"
 composeMultiplatform = "1.7.1"
 navigationComposeCmp = "2.8.0-alpha10"
 
+# Firebase / FCM
+googleServices = "4.4.2"
+firebaseBom = "33.5.1"
+kotlinxCoroutinesPlayServices = "1.8.1"
+
 [libraries]
 # AndroidX
 androidx-compose-material-icons-extended = { module = "androidx.compose.material.icons:material-icons-extended", version.ref = "materialIconsExtended" }
@@ -68,6 +73,11 @@ koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compos
 koin-compose = { group = "io.insert-koin", name = "koin-compose", version.ref = "koin" }
 koin-compose-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmodel", version.ref = "koin" }
 
+# Firebase
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-messaging-ktx = { group = "com.google.firebase", name = "firebase-messaging-ktx" }
+kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutinesPlayServices" }
+
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -82,3 +92,4 @@ kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref 
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }

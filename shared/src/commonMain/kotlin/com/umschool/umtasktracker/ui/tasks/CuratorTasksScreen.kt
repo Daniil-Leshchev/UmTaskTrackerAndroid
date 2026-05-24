@@ -17,10 +17,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -29,6 +32,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.umschool.umtasktracker.notifications.RequestNotificationPermission
 import com.umschool.umtasktracker.presentation.curator.CuratorTasksViewModel
 import com.umschool.umtasktracker.ui.tasks.components.CuratorTaskItem
 import com.umschool.umtasktracker.ui.tasks.components.TaskStatusBar
@@ -40,12 +48,23 @@ import com.umschool.umtasktracker.presentation.curator.TaskFilter
 import com.umschool.umtasktracker.presentation.curator.toStatusBarState
 import com.umschool.umtasktracker.ui.theme.CardBackground
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CuratorTasksScreen(
     onTaskClick: (String) -> Unit,
     viewModel: CuratorTasksViewModel = koinViewModel()
 ) {
+    RequestNotificationPermission()
     val uiState by viewModel.uiState.collectAsState()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) viewModel.loadTasks()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     Column(
         modifier = Modifier
@@ -122,16 +141,31 @@ fun CuratorTasksScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(uiState.filteredTasks) { task ->
-                    CuratorTaskItem(
-                        task = task,
-                        onClick = {
-                            onTaskClick(task.id)
+            if (uiState.isLoading && uiState.tasks.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = UmOrange)
+                }
+            } else {
+                PullToRefreshBox(
+                    isRefreshing = uiState.isLoading,
+                    onRefresh = { viewModel.loadTasks() },
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(uiState.filteredTasks) { task ->
+                            CuratorTaskItem(
+                                task = task,
+                                onClick = {
+                                    onTaskClick(task.id)
+                                }
+                            )
                         }
-                    )
+                    }
                 }
             }
         }

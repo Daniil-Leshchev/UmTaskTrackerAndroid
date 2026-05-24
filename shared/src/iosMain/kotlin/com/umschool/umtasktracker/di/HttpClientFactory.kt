@@ -18,7 +18,8 @@ actual fun createPlatformHttpClient(isDebug: Boolean): HttpClient = HttpClient(D
     }
     install(HttpTimeout) {
         connectTimeoutMillis = 10_000
-        requestTimeoutMillis = 15_000
+        requestTimeoutMillis = 60_000
+        socketTimeoutMillis = 60_000
     }
     install(Logging) {
         level = if (isDebug) LogLevel.HEADERS else LogLevel.NONE

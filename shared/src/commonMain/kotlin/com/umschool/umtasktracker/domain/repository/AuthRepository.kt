@@ -16,4 +16,7 @@ interface AuthRepository {
         subjectId: Int,
         departmentId: Int
     ): Result<Unit>
+
+    suspend fun registerFcmToken(token: String): Result<Unit>
+    suspend fun deleteFcmToken(): Result<Unit>
 }
