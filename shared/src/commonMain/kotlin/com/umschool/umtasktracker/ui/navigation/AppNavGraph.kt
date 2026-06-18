@@ -285,6 +285,7 @@ fun AppNavGraph(
             when {
                 task != null -> DetailedCuratorTaskScreen(
                     task = task,
+                    viewModel = viewModel,
                     onBack = { navController.popBackStack() }
                 )
                 uiState.isLoading -> Box(

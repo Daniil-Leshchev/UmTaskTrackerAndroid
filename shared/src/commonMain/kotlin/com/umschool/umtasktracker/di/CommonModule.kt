@@ -14,6 +14,7 @@ import com.umschool.umtasktracker.domain.repository.ManagerRepository
 import com.umschool.umtasktracker.domain.usecase.CreateTaskUseCase
 import com.umschool.umtasktracker.domain.usecase.GetAssignmentPolicyUseCase
 import com.umschool.umtasktracker.domain.usecase.GetCurrentUserUseCase
+import com.umschool.umtasktracker.domain.usecase.GetCuratorReportUseCase
 import com.umschool.umtasktracker.domain.usecase.GetCuratorTasksUseCase
 import com.umschool.umtasktracker.domain.usecase.GetManagerTasksUseCase
 import com.umschool.umtasktracker.domain.usecase.GetRecipientsUseCase
@@ -21,6 +22,7 @@ import com.umschool.umtasktracker.domain.usecase.GetTaskDetailsUseCase
 import com.umschool.umtasktracker.domain.usecase.LoadCatalogsUseCase
 import com.umschool.umtasktracker.domain.usecase.LoginUseCase
 import com.umschool.umtasktracker.domain.usecase.RegisterUseCase
+import com.umschool.umtasktracker.domain.usecase.SubmitReportUseCase
 import com.umschool.umtasktracker.notifications.FcmTokenRegistrar
 import com.umschool.umtasktracker.presentation.auth.LoginViewModel
 import com.umschool.umtasktracker.presentation.auth.RegisterViewModel
@@ -54,10 +56,12 @@ fun commonModule(baseUrl: String, isDebug: Boolean) = module {
     factory { CreateTaskUseCase(get()) }
     factory { GetCurrentUserUseCase(get()) }
     factory { GetTaskDetailsUseCase(get()) }
+    factory { GetCuratorReportUseCase(get()) }
+    factory { SubmitReportUseCase(get()) }
 
     viewModel { LoginViewModel(get(), get()) }
     viewModel { RegisterViewModel(get(), get(), get()) }
-    viewModel { CuratorTasksViewModel(get()) }
+    viewModel { CuratorTasksViewModel(get(), get(), get(), get()) }
     viewModel { ManagerTasksViewModel(get(), get()) }
     viewModel { CreateTaskViewModel(get(), get(), get(), get(), get()) }
 }
