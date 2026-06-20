@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.google.services)
 }
 
+val localProps = gradleLocalProperties(rootDir, providers)
+
 android {
     namespace = "com.umschool.umtasktracker"
     compileSdk = 35
@@ -16,22 +18,41 @@ android {
         minSdk = 26
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val baseUrl = gradleLocalProperties(rootDir, providers)
-            .getProperty("BASE_URL") ?: "http://10.0.2.2:8000"
+        val baseUrl = localProps.getProperty("BASE_URL") ?: "http://10.0.2.2:8000"
         buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
     }
 
+    signingConfigs {
+        create("release") {
+            val keystorePath = localProps.getProperty("KEYSTORE_PATH")
+            if (keystorePath != null) {
+                storeFile = file(keystorePath)
+                storePassword = localProps.getProperty("KEYSTORE_PASSWORD")
+                keyAlias = localProps.getProperty("KEY_ALIAS")
+                keyPassword = localProps.getProperty("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
-        release {
+        debug {
             isMinifyEnabled = false
+        }
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            val releaseSigning = signingConfigs.getByName("release")
+            if (releaseSigning.storeFile != null) {
+                signingConfig = releaseSigning
+            }
         }
     }
 
